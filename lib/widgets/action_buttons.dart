@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 
 class ActionButtons extends StatelessWidget {
-  const ActionButtons({super.key});
+  final String primaryLabel;
+  final VoidCallback onPrimaryPressed;
+  final String secondaryLabel;
+  final VoidCallback onSecondaryPressed;
+
+  const ActionButtons({
+    super.key,
+    required this.primaryLabel,
+    required this.onPrimaryPressed,
+    required this.secondaryLabel,
+    required this.onSecondaryPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +26,8 @@ class ActionButtons extends StatelessWidget {
               backgroundColor: scheme.primary,
               foregroundColor: scheme.onPrimary,
             ),
-            onPressed: () {},
-            child: const Text("Continue shopping"),
+            onPressed: onPrimaryPressed,
+            child: Text(primaryLabel),
           ),
         ),
         const SizedBox(width: 16),
@@ -26,8 +37,8 @@ class ActionButtons extends StatelessWidget {
               foregroundColor: scheme.primary,
               side: BorderSide(color: scheme.primary),
             ),
-            onPressed: () {},
-            child: const Text("View cart"),
+            onPressed: onSecondaryPressed,
+            child: Text(secondaryLabel),
           ),
         ),
       ],

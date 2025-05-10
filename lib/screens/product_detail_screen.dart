@@ -66,7 +66,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Image.network(
                       widget.book.imageUrl,
                       height: 220,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 220),
+                      errorBuilder:
+                          (_, __, ___) =>
+                              const Icon(Icons.broken_image, size: 220),
                     ),
                   ),
                 ),
@@ -80,8 +82,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Text(
                         widget.book.title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                          fontWeight: FontWeight.bold,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -106,7 +108,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 // Descrição
                 Text(
                   widget.book.description,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
 
                 const SizedBox(height: 16),
@@ -132,8 +136,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Text(
                       widget.book.price,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -141,7 +145,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 const SizedBox(height: 24),
 
                 // Botões de ação
-                const ActionButtons(),
+                ActionButtons(
+                  primaryLabel: "Continue shopping",
+                  onPrimaryPressed: () {
+                    Navigator.pop(context); // volta à lista de livros
+                  },
+                  secondaryLabel: "View cart",
+                  onSecondaryPressed: () {
+                    // Navega para a tela do carrinho (exemplo)
+                    Navigator.pushNamed(context, '/cart');
+                  },
+                ),
               ],
             ),
           ),
