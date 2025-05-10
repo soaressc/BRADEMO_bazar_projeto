@@ -57,12 +57,13 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets: 
-  - lib/assets/brightYoungWomen.jpg
-  - lib/assets/daVinci.jpg
-  - lib/assets/carrieFisher.jpg
-  - lib/assets/theGoodSister.jpg
-  - lib/assets/theWaiting.jpg
-  - lib/assets/whereAreYou.png
+    - assets/brightYoungWomen.jpg
+    - assets/daVinci.jpg
+    - assets/carrieFisher.jpg
+    - assets/theGoodSister.jpg
+    - assets/theWaiting.jpg
+    - assets/whereAreYou.png
+    - assets/congratulations.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

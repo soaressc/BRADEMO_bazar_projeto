@@ -41,12 +41,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         description:
             'Let us be your guide to the perfect read. Discover books tailored to your tastes.',
         primaryLabel: 'Get Started',
-        secondaryLabel: 'Sign In',
+        secondaryLabel: 'Sign Up',
         onPrimaryPressed: () {
           Navigator.pushNamed(context, '/home');
         },
         onSecondaryPressed: () {
-          Navigator.pushNamed(context, '/signin');
+          Navigator.pushNamed(context, '/signup');
         },
       ),
     ]);
@@ -58,16 +58,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: PageView.builder(
         controller: _controller,
         itemCount: pages.length,
-        itemBuilder: (_, index) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40),
-          child: OnboardingPage(
-            data: pages[index],
-            primaryLabel: pages[index].primaryLabel,
-            onPrimaryPressed: pages[index].onPrimaryPressed,
-            secondaryLabel: pages[index].secondaryLabel,
-            onSecondaryPressed: pages[index].onSecondaryPressed,
-          ),
-        ),
+        itemBuilder:
+            (_, index) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: OnboardingPage(
+                data: pages[index],
+                primaryLabel: pages[index].primaryLabel,
+                onPrimaryPressed: pages[index].onPrimaryPressed,
+                secondaryLabel: pages[index].secondaryLabel,
+                onSecondaryPressed: pages[index].onSecondaryPressed,
+              ),
+            ),
       ),
     );
   }

@@ -6,6 +6,8 @@ import '../widgets/book_card.dart';
 import 'product_detail_screen.dart';
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
   _HomeState createState() => _HomeState();
 }
@@ -14,12 +16,72 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
 
   List<Book> books = [
-    Book(title: 'The Da Vinci Code', author: 'Dan Brown', imageUrl: 'lib/assets/daVinci.jpg', description: 'A gripping modern thriller about a secret society and religious conspiracies.', price: '\$19.99', rating: 4.5, reviewCount: 1200, store: 'Amazon'),
-    Book(title: 'Carrie Fisher', author: 'Carrie Fisher', imageUrl: 'lib/assets/carrieFisher.jpg', description: 'A memoir by the legendary actress and writer, covering her personal life and career.', price: '\$27.12', rating: 4.7, reviewCount: 800, store: 'Barnes & Noble'),
-    Book(title: 'The Good Sister', author: 'Sally Hepworth', imageUrl: 'lib/assets/theGoodSister.jpg', description: 'A thrilling story of family secrets and the bond between sisters.', price: '\$27.12', rating: 4.3, reviewCount: 950, store: 'Book Depository'),
-    Book(title: 'The Waiting', author: 'Debbie Macomber', imageUrl: 'lib/assets/theWaiting.jpg', description: 'A heartwarming novel about love, hope, and the waiting game of life.', price: '\$27.12', rating: 4.2, reviewCount: 750, store: 'Amazon'),
-    Book(title: 'Where Are You', author: 'Sara Zarr', imageUrl: 'lib/assets/whereAreYou.png', description: 'A poignant exploration of the search for identity and belonging.', price: '\$30.28', rating: 4.1, reviewCount: 600, store: 'Barnes & Noble'),
-    Book(title: 'Bright Young Women', author: 'Jessica Hollander', imageUrl: 'lib/assets/brightYoungWomen.jpg', description: 'A captivating novel about the lives of three women navigating complex relationships.', price: '\$24.49', rating: 4.6, reviewCount: 1050, store: 'Book Depository'),
+    Book(
+      title: 'The Da Vinci Code',
+      author: 'Dan Brown',
+      imageUrl: 'assets/daVinci.jpg',
+      description:
+          'A gripping modern thriller about a secret society and religious conspiracies.',
+      price: '\$19.99',
+      rating: 4.5,
+      reviewCount: 1200,
+      store: 'Amazon',
+    ),
+    Book(
+      title: 'Carrie Fisher',
+      author: 'Carrie Fisher',
+      imageUrl: 'assets/carrieFisher.jpg',
+      description:
+          'A memoir by the legendary actress and writer, covering her personal life and career.',
+      price: '\$27.12',
+      rating: 4.7,
+      reviewCount: 800,
+      store: 'Barnes & Noble',
+    ),
+    Book(
+      title: 'The Good Sister',
+      author: 'Sally Hepworth',
+      imageUrl: 'assets/theGoodSister.jpg',
+      description:
+          'A thrilling story of family secrets and the bond between sisters.',
+      price: '\$27.12',
+      rating: 4.3,
+      reviewCount: 950,
+      store: 'Book Depository',
+    ),
+    Book(
+      title: 'The Waiting',
+      author: 'Debbie Macomber',
+      imageUrl: 'assets/theWaiting.jpg',
+      description:
+          'A heartwarming novel about love, hope, and the waiting game of life.',
+      price: '\$27.12',
+      rating: 4.2,
+      reviewCount: 750,
+      store: 'Amazon',
+    ),
+    Book(
+      title: 'Where Are You',
+      author: 'Sara Zarr',
+      imageUrl: 'assets/whereAreYou.png',
+      description:
+          'A poignant exploration of the search for identity and belonging.',
+      price: '\$30.28',
+      rating: 4.1,
+      reviewCount: 600,
+      store: 'Barnes & Noble',
+    ),
+    Book(
+      title: 'Bright Young Women',
+      author: 'Jessica Hollander',
+      imageUrl: 'assets/brightYoungWomen.jpg',
+      description:
+          'A captivating novel about the lives of three women navigating complex relationships.',
+      price: '\$24.49',
+      rating: 4.6,
+      reviewCount: 1050,
+      store: 'Book Depository',
+    ),
   ];
 
   // Método para abrir os detalhes do produto

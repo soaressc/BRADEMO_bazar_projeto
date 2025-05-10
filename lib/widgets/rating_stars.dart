@@ -20,7 +20,7 @@ class RatingStars extends StatelessWidget {
         color: Colors.amber,
         size: 20,
       ),
-    );
+    ); 
 
     return Row(
       children: [
