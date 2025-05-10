@@ -1,4 +1,4 @@
-import 'package:bazar/pages/home.dart';
+import '../screens/home.dart';
 import 'package:flutter/material.dart';
 // importar a página de autores em vez de home
 

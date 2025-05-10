@@ -1,53 +1,45 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import '../widgets/book_card.dart';
+import 'product_detail_screen.dart';
 
 class GridViewBooks extends StatelessWidget {
   final List<Book> books;
-  const GridViewBooks({super.key, required this.books});
+  final Function(Book) onTap;
+
+  const GridViewBooks({super.key, required this.books, required this.onTap});
+
+  // Função que será chamada ao clicar no item
+  void _openProductDetail(BuildContext context, Book book) {
+    // Aqui você pode implementar a navegação ou qualquer outra ação
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ProductDetailScreen(book: book)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    var tamanho = MediaQuery.of(context).size;
-    final double itemAltura = tamanho.height / 3;
-    final double itemLargura = tamanho.width / 2;
-
-    return GridView.count(
-      crossAxisCount: 2,
-      childAspectRatio: itemLargura / itemAltura,
-      children: List.generate(books.length, (index) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        childAspectRatio: 0.7,
+      ),
+      itemCount: books.length,
+      itemBuilder: (context, index) {
         final book = books[index];
-        return Container(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //deixando as imagens com bordas arredondadas
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                //adicionando as imagens
-                child: Image.asset(
-                  book.caminhoImagem,
-                  height: itemAltura / 1.5,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(height: 10),
-              //adicionando o titulo
-              Text(
-                book.titulo,
-              ),
-              //adicionando o preco
-              Text(
-                book.preco,
-                style: const TextStyle(
-                  color: Colors.deepPurple,
-                ),
-              ),
-            ],
+        return GestureDetector(
+          onTap: () => _openProductDetail(context, book),
+          child: BookCard(
+            book: book,
+            onTap: () => _openProductDetail(context, book),
+            isFavorite: false,
           ),
         );
-      }),
+      },
     );
   }
 }

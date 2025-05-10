@@ -3,46 +3,39 @@ import '../models/book.dart';
 
 class BookCard extends StatelessWidget {
   final Book book;
-  final VoidCallback onTap; // onTap callback
-  final bool isFavorite;    // isFavorite status
+  final VoidCallback onTap;  // Definindo o tipo do parâmetro onTap
+  final bool isFavorite;
 
   const BookCard({
+    Key? key,
     required this.book,
-    required this.onTap,
+    required this.onTap,  // Marcado como required
     required this.isFavorite,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap, // Trigger onTap when the card is clicked
+      onTap: onTap,  // Chamando a função onTap quando o card é tocado
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(book.imageUrl), // Display book image
+            Image.network(
+              book.imageUrl,
+              height: 160,
+              fit: BoxFit.cover,
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                book.title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              child: Text(book.title),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(book.author), // Display author
-            ),
-            IconButton(
-              icon: Icon(
-                isFavorite ? Icons.favorite : Icons.favorite_border,
-              ),
-              onPressed: () {
-                // Handle the favorite action if needed
-              },
+              padding: const EdgeInsets.all(8.0),
+              child: Text(book.author),
             ),
           ],
         ),

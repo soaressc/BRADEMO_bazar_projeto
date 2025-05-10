@@ -1,115 +1,152 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
-import '../widgets/favorite_button.dart';  // Import your FavoriteButton
+import '../widgets/favorite_button.dart';
 import '../widgets/rating_stars.dart';
-import '../widgets/action_buttons.dart';  // Import ActionButtons
+import '../widgets/action_buttons.dart';
+import '../widgets/quantity_selector.dart'; // IMPORTANTE: não esqueça disso!
 
 class ProductDetailScreen extends StatefulWidget {
   final Book book;
-  final ScrollController scrollController;
 
-  const ProductDetailScreen({
-    super.key,
-    required this.book,
-    required this.scrollController,
-  });
+  const ProductDetailScreen({super.key, required this.book});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  bool isFavorite = false;  // Local state to track if the product is marked as favorite
+  bool isFavorite = false;
   int quantity = 1;
 
-  // Toggle favorite state
   void _toggleFavorite() {
     setState(() {
       isFavorite = !isFavorite;
     });
   }
 
+  void _incrementQuantity() {
+    setState(() {
+      quantity++;
+    });
+  }
+
+  void _decrementQuantity() {
+    if (quantity > 1) {
+      setState(() {
+        quantity--;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SingleChildScrollView(
-        controller: widget.scrollController,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    widget.book.imageUrl,
-                    height: 220,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 220),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.book.title,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  FavoriteButton(
-                    isFavorite: isFavorite,  // Pass the current favorite status
-                    onTap: _toggleFavorite,  // Toggle the favorite status
-                  ),
-                ],
-              ),
-              Text(
-                'GoodDay',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: scheme.secondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.book.description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 16),
-              Text("Review", style: Theme.of(context).textTheme.titleMedium),
-              RatingStars(
-                rating: widget.book.rating,
-                reviewCount: widget.book.reviewCount,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.remove)),
-                  const Text("1"),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
-                  const Spacer(),
-                  Text(
-                    "\$${widget.book.price.toStringAsFixed(2)}",
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const ActionButtons(),
-            ],
+    return DraggableScrollableSheet(
+      initialChildSize: 0.95,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-        ),
-      ),
+          child: SingleChildScrollView(
+            controller: scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Imagem
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      widget.book.imageUrl,
+                      height: 220,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 220),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Título + Favorite
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.book.title,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    FavoriteButton(
+                      isFavorite: isFavorite,
+                      onTap: _toggleFavorite,
+                    ),
+                  ],
+                ),
+
+                // Loja (fixo como "GoodDay", pode usar widget.book.store)
+                Text(
+                  widget.book.store,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.secondary,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Descrição
+                Text(
+                  widget.book.description,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Review
+                Text("Review", style: Theme.of(context).textTheme.titleMedium),
+                RatingStars(
+                  rating: widget.book.rating,
+                  reviewCount: widget.book.reviewCount,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Quantidade e Preço
+                Row(
+                  children: [
+                    QuantitySelector(
+                      quantity: quantity,
+                      onAdd: _incrementQuantity,
+                      onRemove: _decrementQuantity,
+                    ),
+                    const Spacer(),
+                    Text(
+                      widget.book.price,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Botões de ação
+                const ActionButtons(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

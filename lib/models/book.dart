@@ -1,9 +1,21 @@
-//criando a classe do livro, com titulo, preco e o caminho da imagem
-class Book{
-  final String titulo;
-  final String preco;
-  final String caminhoImagem;
+class Book {
+  final String title;
+  final String author;
+  final String imageUrl;
+  final String description;
+  final String price;
+  final double rating;
+  final int reviewCount;
+  final String store;
 
-  Book({required this.titulo, required this.preco, required this.caminhoImagem});
-  
+  Book({
+    required this.title,
+    required this.author,
+    required this.imageUrl,
+    required this.description,
+    required this.price,
+    required this.rating,
+    required this.reviewCount,
+    required this.store,
+  });
 }
