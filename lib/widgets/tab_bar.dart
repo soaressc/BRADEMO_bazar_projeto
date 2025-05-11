@@ -1,6 +1,6 @@
-import '../screens/home.dart';
 import 'package:flutter/material.dart';
-// importar a página de autores em vez de home
+import '../screens/authors_list_screen.dart';
+import '../screens/home.dart';
 
 class TabBarSection extends StatefulWidget {
   const TabBarSection({super.key});
@@ -24,14 +24,18 @@ class _TabBarSectionState extends State<TabBarSection>
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
 
-      if (_tabController.index == 1) {
+      if (_tabController.index == 0) {
         // vai para a página de Autores
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Home()),
         );
+      } else if (_tabController.index == 1) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AuthorsListScreen()),
+        );
       }
-      
     });
   }
 
