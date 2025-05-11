@@ -19,23 +19,21 @@ class GridViewBooks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.7,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 12,
+        childAspectRatio:
+            0.68,
       ),
       itemCount: books.length,
       itemBuilder: (context, index) {
         final book = books[index];
-        return GestureDetector(
+        return BookCard(
+          book: book,
           onTap: () => _openProductDetail(context, book),
-          child: BookCard(
-            book: book,
-            onTap: () => _openProductDetail(context, book),
-            isFavorite: false,
-          ),
+          isFavorite: false,
         );
       },
     );

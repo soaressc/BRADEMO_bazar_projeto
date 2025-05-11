@@ -17,25 +17,36 @@ class BookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+      child: SizedBox(
+        height: 230,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(
-              book.imageUrl,
-              height: 160,
-              fit: BoxFit.cover,
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  book.imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(book.title),
+            const SizedBox(height: 4),
+            Text(
+              book.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(book.author),
+            const SizedBox(height: 2),
+            Text(
+              book.price,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.purple,
+                  ),
             ),
           ],
         ),

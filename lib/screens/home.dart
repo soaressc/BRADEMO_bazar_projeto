@@ -117,10 +117,11 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
+                mainAxisSpacing: 6,
+                crossAxisSpacing: 12,
                 childAspectRatio: 0.7,
               ),
+
               itemCount: books.length,
               itemBuilder: (context, index) {
                 final book = books[index];
