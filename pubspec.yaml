@@ -71,6 +71,13 @@ flutter:
     - assets/theWaiting.jpg
     - assets/onboarding1.png
     - assets/onboarding2.png
+    - assets/John.png
+    - assets/Adam.png
+    - assets/Abraham.png
+    - assets/Tess.png
+    - assets/Ann.png
+    - assets/Hernan.png
+    - assets/cart.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
