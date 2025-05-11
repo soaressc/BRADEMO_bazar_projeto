@@ -138,9 +138,12 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: BottomBar(
         selectedIndex: _selectedIndex,
         onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+         if (index == 2) {
+            Navigator.pushNamed(context, '/cart');
+          } else {
+            setState(() {
+              _selectedIndex = index;
+            });
         },
       ),
     );
