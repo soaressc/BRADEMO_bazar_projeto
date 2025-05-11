@@ -88,8 +88,8 @@ class _HomeState extends State<Home> {
   void _openProductDetail(BuildContext context, Book book) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Pra cobrir a tela inteira
-      backgroundColor: Colors.transparent, // Pra borda arredondada
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => ProductDetailScreen(book: book),
     );
   }

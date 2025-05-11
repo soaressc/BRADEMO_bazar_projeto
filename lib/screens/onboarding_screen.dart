@@ -19,12 +19,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     pages.addAll([
       OnboardingModel(
-        imageAsset: 'assets/images/onboarding1.png',
+        imageAsset: 'assets/onboarding1.png',
         title: 'Now reading books will be easier',
         description:
             'Discover new worlds, join a vibrant reading community. Start your reading adventure effortlessly with us.',
         primaryLabel: 'Continue',
-        secondaryLabel: 'Sign In',
+        secondaryLabel: 'Sign Up',
         onPrimaryPressed: () {
           _controller.nextPage(
             duration: const Duration(milliseconds: 300),
@@ -32,14 +32,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           );
         },
         onSecondaryPressed: () {
-          Navigator.pushNamed(context, '/signin');
+          Navigator.pushNamed(context, '/signup');
         },
       ),
       OnboardingModel(
-        imageAsset: 'assets/images/onboarding2.png',
-        title: 'Your Bookish Soulmate Awaits',
+        imageAsset: 'assets/onboarding2.png',
+        title: 'Start Your Adventure',
         description:
-            'Let us be your guide to the perfect read. Discover books tailored to your tastes.',
+            'Ready to embark on a quest for inspiration and knowledge? Your adventure begins now!',
         primaryLabel: 'Get Started',
         secondaryLabel: 'Sign Up',
         onPrimaryPressed: () {
@@ -55,20 +55,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView.builder(
-        controller: _controller,
-        itemCount: pages.length,
-        itemBuilder:
-            (_, index) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              child: OnboardingPage(
+      body: SafeArea(
+        child: PageView.builder(
+          controller: _controller,
+          itemCount: pages.length,
+          itemBuilder:
+              (_, index) => OnboardingPage(
                 data: pages[index],
                 primaryLabel: pages[index].primaryLabel,
                 onPrimaryPressed: pages[index].onPrimaryPressed,
                 secondaryLabel: pages[index].secondaryLabel,
                 onSecondaryPressed: pages[index].onSecondaryPressed,
+                pageController: _controller,
+                totalPages: pages.length,
               ),
-            ),
+          physics:
+              BouncingScrollPhysics(),
+        ),
       ),
     );
   }

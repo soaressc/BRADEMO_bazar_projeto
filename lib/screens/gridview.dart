@@ -9,9 +9,7 @@ class GridViewBooks extends StatelessWidget {
 
   const GridViewBooks({super.key, required this.books, required this.onTap});
 
-  // Função que será chamada ao clicar no item
   void _openProductDetail(BuildContext context, Book book) {
-    // Aqui você pode implementar a navegação ou qualquer outra ação
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ProductDetailScreen(book: book)),

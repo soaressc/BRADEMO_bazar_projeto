@@ -3,7 +3,7 @@ import '../models/book.dart';
 import '../widgets/favorite_button.dart';
 import '../widgets/rating_stars.dart';
 import '../widgets/action_buttons.dart';
-import '../widgets/quantity_selector.dart'; // IMPORTANTE: não esqueça disso!
+import '../widgets/quantity_selector.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Book book;
@@ -94,7 +94,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ],
                 ),
 
-                // Loja (fixo como "GoodDay", pode usar widget.book.store)
                 Text(
                   widget.book.store,
                   style: TextStyle(
@@ -148,11 +147,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ActionButtons(
                   primaryLabel: "Continue shopping",
                   onPrimaryPressed: () {
-                    Navigator.pop(context); // volta à lista de livros
+                    Navigator.pop(context);
                   },
                   secondaryLabel: "View cart",
                   onSecondaryPressed: () {
-                    // Navega para a tela do carrinho (exemplo)
                     Navigator.pushNamed(context, '/cart');
                   },
                 ),

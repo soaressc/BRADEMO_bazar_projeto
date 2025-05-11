@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/screens/auth/signup_screen.dart';
 import 'package:myapp/screens/home.dart';
 import 'package:myapp/screens/onboarding_screen.dart';
+import 'package:myapp/screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
       title: 'Bazar Books',
       initialRoute: '/',
       routes: {
-        '/': (context) => const OnboardingScreen(),
+        '/': (context) => const SplashScreen(),
+        '/onboarding': (context) => const OnboardingScreen(),
         '/home': (context) => const Home(),
         '/signup': (context) => const SignUpScreen(),
       },

@@ -3,20 +3,20 @@ import '../models/book.dart';
 
 class BookCard extends StatelessWidget {
   final Book book;
-  final VoidCallback onTap;  // Definindo o tipo do parâmetro onTap
+  final VoidCallback onTap;
   final bool isFavorite;
 
   const BookCard({
     Key? key,
     required this.book,
-    required this.onTap,  // Marcado como required
+    required this.onTap,
     required this.isFavorite,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,  // Chamando a função onTap quando o card é tocado
+      onTap: onTap,
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(
