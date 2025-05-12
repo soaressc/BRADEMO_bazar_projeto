@@ -36,7 +36,7 @@ class _CartEmptyScreenState extends State<CartEmptyScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('My Cart'),
+        title: const Text('Carrinho'),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_active),
@@ -58,7 +58,7 @@ class _CartEmptyScreenState extends State<CartEmptyScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'There is no products',
+              'O carrinho está vazio',
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.black,
