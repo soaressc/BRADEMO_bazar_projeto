@@ -1,6 +1,8 @@
 # [BRADEMO-2025_1] Projeto Bimestral 1
 
-Bazar de livros
+## Tema:
+
+    Bazar de livros
 
 ## Integrantes:
 
