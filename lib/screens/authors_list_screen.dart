@@ -84,162 +84,141 @@ class _AuthorsListScreenState extends State<AuthorsListScreen>
 
   List<Author> get filteredAuthors {
     if (_searchText.isEmpty) return authors;
-    return authors
-        .where(
-          (author) =>
-              author.name.toLowerCase().contains(_searchText.toLowerCase()) ||
-              author.description.toLowerCase().contains(
-                _searchText.toLowerCase(),
-              ),
-        )
-        .toList();
+    return authors.where((author) {
+      final lc = _searchText.toLowerCase();
+      return author.name.toLowerCase().contains(lc) ||
+          author.description.toLowerCase().contains(lc);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title:
-            _isSearching
-                ? Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Pesquisar autores...',
-                      border: InputBorder.none,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchText = value;
-                      });
-                    },
-                  ),
-                )
-                : const Text(
-                  'Autores',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (_isSearching) {
-              setState(() {
-                _isSearching = false;
-                _searchText = '';
-                _searchController.clear();
-              });
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        actions: [
-          if (_isSearching)
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                setState(() {
-                  _isSearching = false;
-                  _searchText = '';
-                  _searchController.clear();
-                });
-              },
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                setState(() {
-                  _isSearching = true;
-                });
-              },
-            ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [Tab(text: 'Autores'), Tab(text: 'Livros')],
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Verifique os autores',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Autores',
-                  style: TextStyle(
-                    color: Colors.deepPurple,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+    final width = MediaQuery.of(context).size.width;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: width * 0.05,
+            vertical: 16,
           ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                ListView.builder(
-                  itemCount: filteredAuthors.length,
-                  itemBuilder: (context, index) {
-                    final author = filteredAuthors[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8.0,
-                        horizontal: 16.0,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Verifique os autores',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14, 
                       ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: AssetImage(author.imageUrl),
-                            radius: 30,
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  author.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  author.description,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Autores',
+                      style: TextStyle(
+                        color: Colors.deepPurple,
+                        fontSize: 28, 
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
+                    ),
+                  ],
+                ),
+              ),
+
+              IconButton(
+                icon: Icon(_isSearching ? Icons.close : Icons.search),
+                onPressed: () {
+                  setState(() {
+                    if (_isSearching) {
+                      _searchText = '';
+                      _searchController.clear();
+                    }
+                    _isSearching = !_isSearching;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+
+        if (_isSearching)
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: width * 0.05,
+              vertical: 8,
+            ),
+            child: TextField(
+              controller: _searchController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Pesquisar autores…',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    setState(() {
+                      _searchText = '';
+                      _searchController.clear();
+                    });
                   },
                 ),
-                // const Center(child: Text('Livros content will go here')),
-              ],
+              ),
+              onChanged: (v) => setState(() => _searchText = v),
             ),
           ),
-        ],
-      ),
+
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+            child: ListView.builder(
+              itemCount: filteredAuthors.length,
+              itemBuilder: (ctx, i) {
+                final author = filteredAuthors[i];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: AssetImage(author.imageUrl),
+                        radius: 30,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              author.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              author.description,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
