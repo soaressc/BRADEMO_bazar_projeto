@@ -1,10 +1,18 @@
-# myapp
+# [BRADEMO-2025_1] Projeto Bimestral 1
 
-A new Flutter project.
+Bazar de livros
 
-## Getting Started
+## Integrantes:
 
-This project is a starting point for a Flutter application.
+    Ana Laura Angelieri
+    
+    Évelin Ferreira da Silva
+    
+    Giovanna Laura Cravo e Silva
+    
+    Soraya Costa Soares
+
+
 
 A few resources to get you started if this is your first Flutter project:
 
