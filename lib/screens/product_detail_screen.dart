@@ -41,10 +41,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final width = MediaQuery.of(context).size.width;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.95,
-      minChildSize: 0.5,
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
       maxChildSize: 0.95,
       expand: false,
       builder: (context, scrollController) {
@@ -59,41 +60,52 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagem
+                // Handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+
+                // Image
                 Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
+                    child: Image.asset(
                       widget.book.imageUrl,
-                      height: 220,
-                      errorBuilder:
-                          (_, __, ___) =>
-                              const Icon(Icons.broken_image, size: 220),
+                      width: width * 0.5,
+                      height: width * 0.7,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Título + Favorite
+                // Title + Favorite
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
                         widget.book.title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    FavoriteButton(
-                      isFavorite: isFavorite,
-                      onTap: _toggleFavorite,
-                    ),
+                    FavoriteButton(isFavorite: isFavorite, onTap: _toggleFavorite),
                   ],
                 ),
 
+                const SizedBox(height: 4),
+
+                // Store
                 Text(
                   widget.book.store,
                   style: TextStyle(
@@ -102,20 +114,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
-
-                // Descrição
-                Text(
-                  widget.book.description,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                ),
-
                 const SizedBox(height: 16),
 
-                // Review
-                Text("Review", style: Theme.of(context).textTheme.titleMedium),
+                // Description
+                Text(
+                  widget.book.description,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.grey[600]),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Review section
+                Text(
+                  'Review',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 RatingStars(
                   rating: widget.book.rating,
                   reviewCount: widget.book.reviewCount,
@@ -123,7 +139,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                 const SizedBox(height: 24),
 
-                // Quantidade e Preço
+                // Quantity and Price
                 Row(
                   children: [
                     QuantitySelector(
@@ -134,25 +150,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     const Spacer(),
                     Text(
                       widget.book.price,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 24),
 
-                // Botões de ação
+                // Action Buttons
                 ActionButtons(
-                  primaryLabel: "Continue shopping",
-                  onPrimaryPressed: () {
-                    Navigator.pop(context);
-                  },
-                  secondaryLabel: "View cart",
-                  onSecondaryPressed: () {
-                    Navigator.pushNamed(context, '/cart');
-                  },
+                  primaryLabel: 'Continue shopping',
+                  onPrimaryPressed: () => Navigator.pop(context),
+                  secondaryLabel: 'View cart',
+                  onSecondaryPressed: () => Navigator.pushNamed(context, '/cart'),
                 ),
               ],
             ),
