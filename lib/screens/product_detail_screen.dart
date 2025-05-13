@@ -44,10 +44,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final width = MediaQuery.of(context).size.width;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.4,
+      initialChildSize: 0.95,
+      minChildSize: 0.95,
       maxChildSize: 0.95,
-      expand: false,
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
