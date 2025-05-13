@@ -1,16 +1,5 @@
 import 'package:flutter/material.dart';
-
-class Author {
-  final String name;
-  final String imageUrl;
-  final String description;
-
-  Author({
-    required this.name,
-    required this.imageUrl,
-    required this.description,
-  });
-}
+import '../models/author.dart';
 
 class AuthorsListScreen extends StatefulWidget {
   const AuthorsListScreen({super.key});
@@ -99,10 +88,7 @@ class _AuthorsListScreenState extends State<AuthorsListScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: width * 0.05,
-            vertical: 16,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: 16),
           child: Row(
             children: [
               Expanded(
@@ -111,17 +97,14 @@ class _AuthorsListScreenState extends State<AuthorsListScreen>
                   children: const [
                     Text(
                       'Verifique os autores',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14, 
-                      ),
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     SizedBox(height: 4),
                     Text(
                       'Autores',
                       style: TextStyle(
                         color: Colors.deepPurple,
-                        fontSize: 28, 
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
