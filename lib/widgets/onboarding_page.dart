@@ -26,6 +26,7 @@ class OnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final isVertical = MediaQuery.of(context).size.width < 600;
 
     return Stack(
       children: [
@@ -77,7 +78,7 @@ class OnboardingPage extends StatelessWidget {
                 onPrimaryPressed: onPrimaryPressed,
                 secondaryLabel: secondaryLabel,
                 onSecondaryPressed: onSecondaryPressed,
-                isVertical: true,
+                isVertical: isVertical,
               ),
             ],
           ),

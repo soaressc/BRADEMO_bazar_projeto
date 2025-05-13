@@ -19,8 +19,12 @@ class ActionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isScreenWide =
+        screenWidth > 600;
+    final verticalLayout = isVertical || !isScreenWide;
 
-    return isVertical
+    return verticalLayout
         ? Column(
           children: [
             SizedBox(
