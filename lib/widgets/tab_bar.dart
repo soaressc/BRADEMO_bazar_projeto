@@ -1,7 +1,6 @@
 import '../screens/home.dart';
 import 'package:flutter/material.dart';
-import '../screens/authors_list_screen.dart'; 
-// importar a página de autores em vez de home
+import '../screens/authors_list_screen.dart';
 
 class TabBarSection extends StatefulWidget {
   const TabBarSection({super.key});
