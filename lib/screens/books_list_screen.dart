@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../widgets/book_card.dart';
 import '../screens/product_detail_screen.dart';
+import '../screens/gridview.dart';
 
 class BooksListScreen extends StatelessWidget {
   final List<Book> books = [
@@ -84,23 +85,9 @@ class BooksListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 6,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.7,
-      ),
-      itemCount: books.length,
-      itemBuilder: (ctx, i) {
-        final book = books[i];
-        return BookCard(
-          book: book,
-          onTap: () => _openProductDetail(context, book),
-          isFavorite: false,
-        );
-      },
+    return GridViewBooks(
+      books: books,
+      onTap: (book) => _openProductDetail(context, book),
     );
   }
 }
