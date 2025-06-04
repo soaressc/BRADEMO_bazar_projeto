@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "421253422439",
+    "project_id": "brademo-bazar-project",
+    "storage_bucket": "brademo-bazar-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:421253422439:android:8bbfb0a586ec7e4a2ba3c2",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfcz7utVswLLN7p8_2E54AinTf7k6ABbs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
