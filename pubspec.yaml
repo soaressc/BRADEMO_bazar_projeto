@@ -44,6 +44,7 @@ dependencies:
   firebase_storage: ^12.4.6
   location: ^8.0.0 # para geolocalização
   image_picker: ^1.0.0 # para tirar fotos do perfil
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:
