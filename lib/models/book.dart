@@ -18,4 +18,6 @@ class Book {
     required this.reviewCount,
     required this.store,
   });
+
+  double get priceValue => double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
 }
