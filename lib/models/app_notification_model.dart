@@ -1,5 +1,6 @@
 class AppNotification {
   // final String id;
+  // final String usuarioId;
   final String titulo;
   final String mensagem;
   final bool lida;
@@ -7,6 +8,7 @@ class AppNotification {
 
   AppNotification({
     // required this.id,
+    // required this.usuarioId,
     required this.titulo,
     required this.mensagem,
     required this.lida,
