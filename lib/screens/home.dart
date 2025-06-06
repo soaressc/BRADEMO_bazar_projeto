@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
-import '../widgets/tab_bar.dart';
 import '../widgets/bottom_bar.dart';
-import '../widgets/book_card.dart';
 import '../../screens/authors_list_screen.dart';
 import '../../screens/books_list_screen.dart';
 import 'product_detail_screen.dart';
@@ -34,6 +32,14 @@ class _HomeState extends State<Home> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Home'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications_none),
+              onPressed: (){
+                Navigator.pushNamed(context, '/notifications'); 
+              },
+            ),
+          ],
           bottom: const TabBar(
             indicatorColor: Colors.deepPurple,
             labelColor: Colors.black,
