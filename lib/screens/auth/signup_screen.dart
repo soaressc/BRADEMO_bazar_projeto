@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/widgets/custom_button.dart';
 import 'package:myapp/widgets/custom_input_field.dart';
 import 'signup_success.dart';
+import 'package:myapp/screens/auth/welcome_back_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -123,7 +124,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
             const SizedBox(height: 16),
             Center(
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const WelcomeBackScreen(),
+                    ),
+                  );
+                },
                 child: const Text.rich(
                   TextSpan(
                     text: "Have an account? ",
