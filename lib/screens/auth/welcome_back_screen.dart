@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/auth/signup_screen.dart';
 import 'package:myapp/screens/home.dart';
-import 'package:myapp/widgets/custom_bottom.dart';
+import 'package:myapp/widgets/custom_button.dart';
 import 'package:myapp/widgets/custom_input_field.dart';
 
 class WelcomeBackScreen extends StatefulWidget {
@@ -31,24 +31,22 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
     if (email.isEmpty || password.isEmpty) {
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Erro'),
-          content: const Text('Preencha email e senha'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+        builder:
+            (_) => AlertDialog(
+              title: const Text('Erro'),
+              content: const Text('Preencha email e senha'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const Home()),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const Home()));
   }
 
   void togglePasswordVisibility() {
@@ -60,10 +58,11 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
   void onForgotPasswordPressed() {
     showDialog(
       context: context,
-      builder: (_) => const AlertDialog(
-        title: Text('Recuperar senha'),
-        content: Text('Ainda não implementado'),
-      ),
+      builder:
+          (_) => const AlertDialog(
+            title: Text('Recuperar senha'),
+            content: Text('Ainda não implementado'),
+          ),
     );
   }
 
@@ -121,10 +120,7 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            CustomButton(
-              text: "Login",
-              onPressed: onLoginPressed,
-            ),
+            CustomButton(text: "Login", onPressed: onLoginPressed),
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
