@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/auth/signup_screen.dart';
 import 'package:myapp/screens/home.dart';
@@ -14,56 +15,69 @@ class WelcomeBackScreen extends StatefulWidget {
 class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   bool hidePassword = true;
 
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
-
-  void onLoginPressed() {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
+  Future<void> onLoginPressed() async {
+    final email = emailController.text;
+    final password = passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      showDialog(
-        context: context,
-        builder:
-            (_) => AlertDialog(
-              title: const Text('Erro'),
-              content: const Text('Preencha email e senha'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter your email and password.")),
       );
       return;
     }
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const Home()));
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const Home()),
+        (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = "Error logging in";
+      if (e.code == 'invalid-credential') {
+        message = 'Invalid email or password';
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
-  void togglePasswordVisibility() {
-    setState(() {
-      hidePassword = !hidePassword;
-    });
-  }
+  Future<void> onForgotPasswordPressed() async {
+    final email = emailController.text;
 
-  void onForgotPasswordPressed() {
-    showDialog(
-      context: context,
-      builder:
-          (_) => const AlertDialog(
-            title: Text('Recuperar senha'),
-            content: Text('Ainda não implementado'),
-          ),
-    );
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter your email to reset your password."),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Password reset email sent! Please check your inbox."),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = e.code;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   @override
@@ -84,12 +98,11 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
               "Sign to your account",
               style: TextStyle(color: Colors.grey),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             CustomInputField(
               controller: emailController,
               label: 'Email',
               hint: 'Your email',
-              obscure: false,
             ),
             const SizedBox(height: 16),
             CustomInputField(
@@ -102,10 +115,10 @@ class _WelcomeBackScreenState extends State<WelcomeBackScreen> {
                   hidePassword ? Icons.visibility_off : Icons.visibility,
                   color: Colors.grey,
                 ),
-                onPressed: togglePasswordVisibility,
+                onPressed: () => setState(() => hidePassword = !hidePassword),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
