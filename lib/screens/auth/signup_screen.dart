@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/custom_button.dart';
 import 'package:myapp/widgets/custom_input_field.dart';
@@ -16,6 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool showPassword = false;
+  bool isLoading = false;
 
   bool isPasswordValid(String password) {
     final lengthValid = password.length >= 8;
@@ -24,10 +26,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return lengthValid && hasNumber && hasLetter;
   }
 
+  Future<void> registerUser() async {
+    setState(() => isLoading = true);
+
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SignUpSuccess()),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = "Error registering new user";
+      if (e.code == 'invalid-email') {
+        message = 'Email not valid';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'This email is already in use. Try another one.';
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final password = passwordController.text;
     final isValid = isPasswordValid(password);
+    final isFormComplete =
+        nameController.text.isNotEmpty &&
+        emailController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -109,14 +147,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             CustomButton(
               text: "Register",
               onPressed:
-                  isValid
+                  isFormComplete && isValid && !isLoading
                       ? () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SignUpSuccess(),
-                          ),
-                        );
+                        registerUser();
                       }
                       : () {},
             ),
