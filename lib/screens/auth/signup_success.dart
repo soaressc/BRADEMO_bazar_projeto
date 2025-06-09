@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/screens/home.dart';
+import 'package:myapp/screens/auth/welcome_back_screen.dart';
 import 'package:myapp/widgets/custom_button.dart';
 
 class SignUpSuccess extends StatelessWidget {
@@ -32,7 +32,7 @@ class SignUpSuccess extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (_) => Home()),
+                    MaterialPageRoute(builder: (_) => WelcomeBackScreen()),
                     (route) => false,
                   );
                 },
