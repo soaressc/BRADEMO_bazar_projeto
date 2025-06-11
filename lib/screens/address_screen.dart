@@ -20,97 +20,89 @@ class AddressScreen extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // Mapa simulado
-          Container(
-            height: 250,
-            color: Colors.purple[50],
-            child: const Center(
-              child: Text(
-                "🗺️ Mapa Simulado\n(New York)",
-                textAlign: TextAlign.center,
+      body: SingleChildScrollView(
+        // Wrapping the body in a SingleChildScrollView
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Mapa simulado
+              Container(
+                height: 250,
+                color: Colors.purple[50],
+                child: const Center(
+                  child: Text(
+                    "🗺️ Mapa Simulado\n(New York)",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
-            ),
-          ),
-
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+              const SizedBox(height: 24),
+              const Text(
+                "Detail Address",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 12),
+              Row(
                 children: [
-                  const Text(
-                    "Detail Address",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
+                  const Icon(Icons.location_on, color: Colors.purple),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.location_on, color: Colors.purple),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            mockAddress["logradouro"]!,
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            mockAddress["detalhes"]!,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ],
+                      Text(
+                        mockAddress["logradouro"]!,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          // abrir editor de endereço
-                        },
-                        icon: const Icon(Icons.edit),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Text("Save Address As"),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      ChoiceChip(
-                        label: const Text("Home"),
-                        selected: true,
-                        selectedColor: Colors.purple[100],
-                        onSelected: (_) {},
-                      ),
-                      const SizedBox(width: 12),
-                      ChoiceChip(
-                        label: const Text("Offices"),
-                        selected: false,
-                        onSelected: (_) {},
+                      Text(
+                        mockAddress["detalhes"]!,
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
                   const Spacer(),
-                  ElevatedButton(
+                  IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      // abrir editor de endereço
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      minimumSize: const Size.fromHeight(48),
-                    ),
-                    child: const Text("Confirmation"),
+                    icon: const Icon(Icons.edit),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 24),
+              const Text("Save Address As"),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  ChoiceChip(
+                    label: const Text("Home"),
+                    selected: true,
+                    selectedColor: Colors.purple[100],
+                    onSelected: (_) {},
+                  ),
+                  const SizedBox(width: 12),
+                  ChoiceChip(
+                    label: const Text("Offices"),
+                    selected: false,
+                    onSelected: (_) {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                child: const Text("Confirmation"),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,4 +1,3 @@
-// screens/cart_screen.dart
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import './product_detail_screen.dart';
@@ -157,10 +156,18 @@ class _CartScreenState extends State<CartScreen> {
         ],
       ),
       bottomNavigationBar: BottomBar(
-        selectedIndex: 2, // índice da aba "Cart"
+        selectedIndex: 2, // Índice da aba "Cart"
         onTap: (index) {
-          // Troca de telas (você pode usar Navigator ou outro método de navegação aqui)
-          print('Tapped on index $index');
+          // Navigate based on the selected index
+          if (index == 0) {
+            Navigator.pushNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushNamed(context, '/category');
+          } else if (index == 2) {
+            // Stay on CartScreen, no need to navigate
+          } else if (index == 3) {
+            Navigator.pushNamed(context, '/profile');
+          }
         },
       ),
     );

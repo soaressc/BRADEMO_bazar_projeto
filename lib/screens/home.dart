@@ -59,6 +59,9 @@ class _HomeState extends State<Home> {
             if (index == 2) {
               Navigator.pushNamed(context, '/cart');
             }
+            if (index == 3) {
+              Navigator.pushNamed(context, '/profile');
+            }
           },
         ),
       ),
