@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
-import '../widgets/book_card.dart';
+//import '../widgets/book_card.dart';
 import '../screens/product_detail_screen.dart';
 import '../screens/gridview.dart';
 
 class BooksListScreen extends StatelessWidget {
   final List<Book> books = [
     Book(
+      id: '1',
       title: 'The Da Vinci Code',
       author: 'Dan Brown',
       imageUrl: 'assets/daVinci.jpg',
@@ -18,6 +19,7 @@ class BooksListScreen extends StatelessWidget {
       store: 'Amazon',
     ),
     Book(
+      id: '2',
       title: 'Carrie Fisher',
       author: 'Carrie Fisher',
       imageUrl: 'assets/carrieFisher.jpg',
@@ -29,6 +31,7 @@ class BooksListScreen extends StatelessWidget {
       store: 'Barnes & Noble',
     ),
     Book(
+      id: '3',
       title: 'The Good Sister',
       author: 'Sally Hepworth',
       imageUrl: 'assets/theGoodSister.jpg',
@@ -40,6 +43,7 @@ class BooksListScreen extends StatelessWidget {
       store: 'Book Depository',
     ),
     Book(
+      id: '4',
       title: 'The Waiting',
       author: 'Debbie Macomber',
       imageUrl: 'assets/theWaiting.jpg',
@@ -51,6 +55,7 @@ class BooksListScreen extends StatelessWidget {
       store: 'Amazon',
     ),
     Book(
+      id: '5',
       title: 'Where Are You',
       author: 'Sara Zarr',
       imageUrl: 'assets/whereAreYou.png',
@@ -62,6 +67,7 @@ class BooksListScreen extends StatelessWidget {
       store: 'Barnes & Noble',
     ),
     Book(
+      id: '6',
       title: 'Bright Young Women',
       author: 'Jessica Hollander',
       imageUrl: 'assets/brightYoungWomen.jpg',

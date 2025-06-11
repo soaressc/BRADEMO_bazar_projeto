@@ -5,6 +5,7 @@ import '../models/app_notification_model.dart';
 class NotificationScreen extends StatelessWidget {
   final List<AppNotification> notifications = [
     AppNotification(
+      id: '1',
       titulo: 'Promotion',
       mensagem:
           'Today 50% discount on all Books in Novel category with online orders worldwide.',
@@ -12,12 +13,14 @@ class NotificationScreen extends StatelessWidget {
       data: DateTime(2021, 10, 21, 8, 0),
     ),
     AppNotification(
+      id: '2',
       titulo: 'Promotion',
       mensagem: 'Buy 2 get 1 free for since books from 08 - 10 October 2021.',
       lida: false,
       data: DateTime(2021, 10, 8, 20, 30),
     ),
     AppNotification(
+      id: '3',
       titulo: 'Information',
       mensagem: 'There is a new book now available',
       lida: true,

@@ -1,4 +1,5 @@
 class Book {
+  final String id;
   final String title;
   final String author;
   final String imageUrl;
@@ -9,6 +10,7 @@ class Book {
   final String store;
 
   Book({
+    required this.id,
     required this.title,
     required this.author,
     required this.imageUrl,
@@ -19,5 +21,10 @@ class Book {
     required this.store,
   });
 
-  double get priceValue => double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+  double get priceValue =>
+      double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+
+  static fromMap(Map<String, dynamic> map) {}
+
+  toMap() {}
 }

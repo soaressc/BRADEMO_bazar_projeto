@@ -12,4 +12,8 @@ class Cart {
   });
 
   double get total => itens.fold(0.0, (sum, item) => sum + item.subtotal);
+
+  static fromMap(Map<String, dynamic> map) {}
+
+  toMap() {}
 }

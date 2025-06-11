@@ -18,31 +18,37 @@ class _AuthorsListScreenState extends State<AuthorsListScreen>
 
   final List<Author> authors = [
     Author(
+      id: '1',
       name: 'John Freeman',
       imageUrl: 'assets/John.png',
       description: 'American writer he  was the editor of the',
     ),
     Author(
+      id: '2',
       name: 'Adam Dalva',
       imageUrl: 'assets/Adam.png',
       description: 'He is the senior fiction editor of guernica ma',
     ),
     Author(
+      id: '3',
       name: 'Abraham verghese',
       imageUrl: 'assets/Abraham.png',
       description: 'He is the professor and Linda R . Meier and',
     ),
     Author(
+      id: '4',
       name: 'Tess Gunty',
       imageUrl: 'assets/Tess.png',
       description: 'Gunty was born and raised in south bend,indiana',
     ),
     Author(
+      id: '5',
       name: 'Ann Napolitano',
       imageUrl: 'assets/Ann.png',
       description: 'She is the author of the novels A Good Hard',
     ),
     Author(
+      id: '6',
       name: 'Hernan Diaz',
       imageUrl: 'assets/Hernan.png',
       description: 'He is Hernan Diaz',

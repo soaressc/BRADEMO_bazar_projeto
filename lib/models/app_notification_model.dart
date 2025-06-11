@@ -1,5 +1,5 @@
 class AppNotification {
-  // final String id;
+  final String id;
   // final String usuarioId;
   final String titulo;
   final String mensagem;
@@ -7,11 +7,15 @@ class AppNotification {
   final DateTime data;
 
   AppNotification({
-    // required this.id,
+    required this.id,
     // required this.usuarioId,
     required this.titulo,
     required this.mensagem,
     required this.lida,
     required this.data,
   });
+
+  static fromMap(Map<String, dynamic> map) {}
+
+  toMap() {}
 }
