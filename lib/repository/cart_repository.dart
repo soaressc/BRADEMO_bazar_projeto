@@ -1,19 +1,14 @@
+// Cart Repository
 import 'package:myapp/models/cart.dart';
-import 'package:myapp/models/book.dart';  // Corrigido: Agora estamos trabalhando com Book, não CartItem
 import 'package:myapp/service/cart_service.dart';
 
 class CartRepository {
-  final CartService _cartService = CartService();
+  final CartService cartService;
 
-  Future<Cart?> getCartWithItems(String userId) {
-    return _cartService.getCartWithItems(userId);
-  }
+  CartRepository({required this.cartService});
 
-  Future<void> removeItem(String cartId, String itemId) {
-    return _cartService.removeItem(cartId, itemId);
-  }
-
-  Future<Map<String, Book>> fetchBooks(List<String> bookIds) {
-    return _cartService.fetchBooks(bookIds);
-  }
+  Future<void> addCart(Cart cart) => cartService.createCart(cart);
+  Future<Cart?> fetchCart(String id) => cartService.getCart(id);
+  Future<void> updateCart(Cart cart) => cartService.updateCart(cart);
+  Future<void> removeCart(String id) => cartService.deleteCart(id);
 }
