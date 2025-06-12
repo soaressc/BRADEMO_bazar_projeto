@@ -5,7 +5,7 @@ class BookService {
   final CollectionReference<Book> booksRef = FirebaseFirestore.instance
       .collection('books')
       .withConverter<Book>(
-        fromFirestore: (snap, _) => Book.fromMap(snap.data()!),
+        fromFirestore: (snap, _) => Book.fromMap(snap.data()!, id: snap.id),
         toFirestore: (book, _) => book.toMap(),
       );
 
@@ -25,7 +25,10 @@ class BookService {
 
   Future<Map<String, Book>> fetchBookMap() async {
     final snapshot = await booksRef.get();
-    return {for (var doc in snapshot.docs) doc.id: doc.data()};
+    return {
+      for (var doc in snapshot.docs)
+        doc.id: doc.data(),
+    };
   }
 
   Future<void> updateBook(Book book) =>

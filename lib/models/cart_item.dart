@@ -29,7 +29,13 @@ class CartItem {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'cartId': cartId, 'bookId': bookId, 'quantity': quantity};
+    return {
+      'id': id,
+      'cartId': cartId,
+      'bookId': bookId,
+      'unitPrice': unitPrice,
+      'quantity': quantity,
+    };
   }
 
   CartItem copyWith({

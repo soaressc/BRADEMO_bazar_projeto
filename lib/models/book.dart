@@ -25,9 +25,9 @@ class Book {
       double.tryParse(price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
 
   /// Método principal de deserialização
-  factory Book.fromMap(Map<String, dynamic> map) {
+  factory Book.fromMap(Map<String, dynamic> map, {required String id}) {
     return Book(
-      id: map['id'] ?? '', // Se não tiver o ID no doc, pode ser vazio
+      id: id,
       title: map['title'] ?? 'Título desconhecido',
       author: map['author'] ?? 'Autor desconhecido',
       imageUrl: map['imageUrl'] ?? '',
@@ -40,7 +40,8 @@ class Book {
   }
 
   /// Método auxiliar para compatibilidade com JSON
-  factory Book.fromJson(Map<String, dynamic> json) => Book.fromMap(json);
+  factory Book.fromJson(Map<String, dynamic> json, {required String id}) =>
+      Book.fromMap(json, id: id);
 
   /// Método principal de serialização
   Map<String, dynamic> toMap() {

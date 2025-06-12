@@ -60,28 +60,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     Cart? cart = await cartService.getCartByUserId(appUser.id);
 
+    // Cria o carrinho se não existir
     if (cart == null) {
-      cart = Cart(id: appUser.id, userId: appUser.id, itens: []);
+      cart = Cart(id: appUser.id, userId: appUser.id, items: []);
       await cartService.createCart(cart);
     }
 
     final String itemId = widget.book.id;
-    final existingItems = await cartItemService.getItems(cart.id);
-    final existingItem = existingItems.firstWhere(
-      (item) => item.id == itemId,
-      orElse:
-          () => CartItem(
-            id: '',
-            cartId: '',
-            bookId: '',
-            unitPrice: 0.0,
-            quantity: 0,
-          ),
-    );
 
-    final isValidItem = existingItem.id.isNotEmpty;
+    // Verifica se o item já está no carrinho
+    CartItem? existingItem;
+    try {
+      final existingItems = await cartItemService.getItems(cart.id);
+      existingItem = existingItems.firstWhere((item) => item.id == itemId);
+    } catch (_) {
+      existingItem = null;
+    }
 
-    if (isValidItem) {
+    if (existingItem != null) {
       final updatedItem = existingItem.copyWith(
         quantity: existingItem.quantity + quantity,
       );
@@ -94,6 +90,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         unitPrice: widget.book.priceValue,
         quantity: quantity,
       );
+
       await cartItemService.addItem(cart.id, newItem);
     }
 
@@ -139,6 +136,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                 ),
+
                 Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
@@ -151,6 +149,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
                 Row(
                   children: [
                     Expanded(
@@ -183,12 +182,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 24),
+
                 Text('Review', style: Theme.of(context).textTheme.titleMedium),
                 RatingStars(
                   rating: widget.book.rating,
                   reviewCount: widget.book.reviewCount,
                 ),
                 const SizedBox(height: 24),
+
                 Row(
                   children: [
                     QuantitySelector(
@@ -206,6 +207,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
+
                 ActionButtons(
                   primaryLabel: 'Add to cart',
                   onPrimaryPressed: _handleAddToCart,

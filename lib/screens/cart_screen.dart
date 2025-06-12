@@ -52,19 +52,18 @@ class _CartScreenState extends State<CartScreen> {
   void _updateQuantity(String cartItemId, int newQuantity) async {
     final cart = await _futureCart;
     if (cart != null) {
-      final item = cart.itens.firstWhere((i) => i.id == cartItemId);
+      final item = cart.items.firstWhere((i) => i.id == cartItemId);
       final updatedItem = item.copyWith(quantity: newQuantity);
       await _cartItemService.updateItem(cart.id, updatedItem);
       _refreshCart();
     }
   }
 
-  double _calculateTotal(List<CartItem> items, Map<String, Book> bookMap) {
-    return items.fold(0.0, (total, item) {
-      final book = bookMap[item.bookId];
-      final price = book?.priceValue ?? 0.0;
-      return total + (price * item.quantity);
-    });
+  double _calculateTotal(List<CartItem> items) {
+    return items.fold(
+      0.0,
+      (total, item) => total + (item.unitPrice * item.quantity),
+    );
   }
 
   @override
@@ -89,7 +88,7 @@ class _CartScreenState extends State<CartScreen> {
           }
 
           final cart = snapshot.data!;
-          final cartItems = cart.itens;
+          final cartItems = cart.items;
           final bookIds = cartItems.map((item) => item.bookId).toSet().toList();
 
           return FutureBuilder<Map<String, Book>>(
@@ -154,7 +153,7 @@ class _CartScreenState extends State<CartScreen> {
                         const Text("Total:"),
                         const Spacer(),
                         Text(
-                          "R\$ ${_calculateTotal(cartItems, bookMap).toStringAsFixed(2)}",
+                          "R\$ ${_calculateTotal(cartItems).toStringAsFixed(2)}",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],

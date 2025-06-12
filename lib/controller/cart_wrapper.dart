@@ -1,57 +1,48 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/models/cart.dart';
 import '../screens/cart_screen.dart';
 import '../screens/cart_empty_screen.dart';
 import '../service/cart_service.dart';
 
-class CartWrapper extends StatefulWidget {
+class CartWrapper extends StatelessWidget {
   const CartWrapper({super.key});
 
   @override
-  State<CartWrapper> createState() => _CartWrapperState();
-}
-
-class _CartWrapperState extends State<CartWrapper> {
-  bool _loading = true;
-  bool _hasItems = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkCart();
-  }
-
-  Future<void> _checkCart() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user == null || user.isAnonymous) {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/signup');
-        }
-        return;
-      }
-
-      final cartService = CartService();
-      final cart = await cartService.getCartWithItems(user.uid);
-
-      setState(() {
-        _hasItems = cart != null && cart.itens.isNotEmpty;
-        _loading = false;
-      });
-    } catch (e, st) {
-      debugPrint("Erro ao verificar carrinho: $e");
-      debugPrintStack(stackTrace: st);
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_loading) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null || user.isAnonymous) {
+      Future.microtask(
+        () => Navigator.pushReplacementNamed(context, '/signup'),
+      );
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return _hasItems ? const CartScreen() : const CartEmptyScreen();
+    return FutureBuilder<Cart?>(
+      future: CartService().getCartWithItems(user.uid),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const Scaffold(
+            body: Center(child: Text("Erro ao carregar carrinho")),
+          );
+        }
+
+        final cart = snapshot.data;
+        print("Itens do carrinho: ${cart?.items.map((e) => e.bookId)}");
+
+        if (cart == null || cart.items.isEmpty) {
+          return const CartEmptyScreen();
+        }
+
+        return const CartScreen();
+      },
+    );
   }
 }

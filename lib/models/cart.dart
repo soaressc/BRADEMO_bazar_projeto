@@ -1,35 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'cart_item.dart';
+import 'package:myapp/models/cart_item.dart';
 
 class Cart {
   final String id;
   final String userId;
-  final List<CartItem> itens;
+  final List<CartItem> items;
 
-  Cart({required this.id, required this.userId, required this.itens});
+  Cart({
+    required this.id,
+    required this.userId,
+    this.items = const [],
+  });
 
-  double get total => itens.fold(0.0, (sum, item) => sum + item.subtotal);
+  double get total => items.fold(0.0, (sum, item) => sum + item.subtotal);
 
   factory Cart.fromJson(Map<String, dynamic> json) {
     return Cart(
       id: json['id'],
       userId: json['userId'],
-      itens:
-          (json['itens'] as List<dynamic>)
-              .map((item) => CartItem.fromJson(item))
-              .toList(),
-    );
-  }
-
-  factory Cart.fromDocument(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return Cart(
-      id: doc.id, // geralmente o ID vem do doc.id
-      userId: data['userId'],
-      itens:
-          (data['itens'] as List<dynamic>)
-              .map((item) => CartItem.fromJson(item))
-              .toList(),
     );
   }
 
@@ -37,11 +25,27 @@ class Cart {
     return {
       'id': id,
       'userId': userId,
-      'itens': itens.map((item) => item.toJson()).toList(),
     };
   }
 
-  Map<String, dynamic> toDocument() {
-    return toJson();
+  factory Cart.fromDocument(DocumentSnapshot doc, {List<CartItem> items = const []}) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Cart(
+      id: doc.id,
+      userId: data['userId'],
+      items: items,
+    );
+  }
+
+  Cart copyWith({
+    String? id,
+    String? userId,
+    List<CartItem>? items,
+  }) {
+    return Cart(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      items: items ?? this.items,
+    );
   }
 }

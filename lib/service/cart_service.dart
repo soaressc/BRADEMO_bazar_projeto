@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myapp/models/cart.dart';
 import 'package:myapp/models/book.dart';
+import 'package:myapp/models/cart_item.dart';
 import 'package:myapp/service/cart_item_service.dart';
 
 class CartService {
@@ -11,7 +12,6 @@ class CartService {
         toFirestore: (cart, _) => cart.toJson(),
       );
 
-  // Método para criar um novo carrinho
   Future<void> createCart(Cart cart) async {
     try {
       await cartsRef.doc(cart.id).set(cart);
@@ -21,7 +21,6 @@ class CartService {
     }
   }
 
-  // Obter carrinho com base no ID
   Future<Cart?> getCart(String id) async {
     try {
       final doc = await cartsRef.doc(id).get();
@@ -32,7 +31,6 @@ class CartService {
     }
   }
 
-  // Obter o carrinho de um usuário (usando userId)
   Future<Cart?> getCartByUserId(String userId) async {
     try {
       final doc =
@@ -50,28 +48,28 @@ class CartService {
     }
   }
 
-  // Obter carrinho com itens
   Future<Cart?> getCartWithItems(String userId) async {
     try {
-      final doc =
+      final query =
           await FirebaseFirestore.instance
               .collection('carts')
-              .doc(userId)
+              .where('userId', isEqualTo: userId)
+              .limit(1)
               .get();
-      if (!doc.exists) return null;
 
-      final cart = Cart.fromDocument(doc);
-      final itemService = CartItemService();
-      final items = await itemService.getItems(cart.id);
+      if (query.docs.isEmpty) return null;
 
-      return Cart(id: cart.id, userId: cart.userId, itens: items);
+      final cartDoc = query.docs.first;
+      final cart = Cart.fromDocument(cartDoc);
+      final items = await CartItemService().getItems(cart.id);
+
+      return cart.copyWith(items: items);
     } catch (e) {
       print("Erro ao buscar carrinho com itens: $e");
       return null;
     }
   }
 
-  // Atualizar carrinho existente
   Future<void> updateCart(Cart cart) async {
     try {
       await cartsRef.doc(cart.id).update(cart.toJson());
@@ -81,7 +79,6 @@ class CartService {
     }
   }
 
-  // Deletar carrinho
   Future<void> deleteCart(String id) async {
     try {
       await cartsRef.doc(id).delete();
@@ -91,7 +88,6 @@ class CartService {
     }
   }
 
-  // Atualizar quantidade de um item específico no carrinho
   Future<void> updateItemQuantity(
     String cartId,
     String itemId,
@@ -99,13 +95,10 @@ class CartService {
   ) async {
     try {
       final itemService = CartItemService();
-      final item = await itemService.getItemById(
-        cartId,
-        itemId,
-      ); // Mudança aqui
+      final item = await itemService.getItemById(cartId, itemId);
       if (item != null) {
         final updatedItem = item.copyWith(quantity: quantity);
-        await itemService.updateItem(cartId, updatedItem); // Usando updateItem
+        await itemService.updateItem(cartId, updatedItem);
       }
     } catch (e) {
       print("Erro ao atualizar quantidade do item: $e");
@@ -113,18 +106,15 @@ class CartService {
     }
   }
 
-  // Remover um item específico do carrinho
   Future<void> removeItem(String cartId, String itemId) async {
     try {
-      final itemService = CartItemService();
-      await itemService.deleteItem(cartId, itemId); // Mudança aqui
+      await CartItemService().deleteItem(cartId, itemId);
     } catch (e) {
       print("Erro ao remover item do carrinho: $e");
       rethrow;
     }
   }
 
-  // Método para buscar os livros no Firestore e mapear para um formato adequado
   Future<Map<String, Book>> fetchBooks(List<String> bookIds) async {
     try {
       final booksSnapshot =
@@ -134,7 +124,8 @@ class CartService {
               .get();
 
       return {
-        for (var doc in booksSnapshot.docs) doc.id: Book.fromMap(doc.data()),
+        for (var doc in booksSnapshot.docs)
+          doc.id: Book.fromMap(doc.data(), id: doc.id),
       };
     } catch (e) {
       print("Erro ao buscar livros: $e");

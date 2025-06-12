@@ -7,7 +7,7 @@ class CartItemService {
     return FirebaseFirestore.instance
         .collection('carts')
         .doc(cartId)
-        .collection('items')
+        .collection('cart-items')
         .withConverter<CartItem>(
           fromFirestore: (snapshot, _) => CartItem.fromJson(snapshot.data()!),
           toFirestore: (item, _) => item.toJson(),
@@ -17,17 +17,20 @@ class CartItemService {
   // Adiciona um item ao carrinho
   Future<void> addItem(String cartId, CartItem item) async {
     try {
-      if (item.id.isEmpty) {
-        throw ArgumentError("Item ID não pode ser vazio.");
-      }
-
       final cartItemRef = _cartItemRef(cartId);
-      final doc = await cartItemRef.doc(item.id).get();
 
-      if (!doc.exists) {
-        await cartItemRef.doc(item.id).set(item);
+      if (item.id.isEmpty) {
+        // Gerar ID automaticamente se estiver vazio
+        final docRef = cartItemRef.doc();
+        final newItem = item.copyWith(id: docRef.id);
+        await docRef.set(newItem);
       } else {
-        await updateItem(cartId, item);
+        final doc = await cartItemRef.doc(item.id).get();
+        if (!doc.exists) {
+          await cartItemRef.doc(item.id).set(item);
+        } else {
+          await updateItem(cartId, item);
+        }
       }
     } catch (e) {
       print("Erro ao adicionar/atualizar item: $e");
