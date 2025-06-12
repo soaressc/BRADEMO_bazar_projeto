@@ -1,5 +1,3 @@
-import 'book.dart';
-
 class CartItem {
   final String id;
   final String cartId;
