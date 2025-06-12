@@ -9,11 +9,23 @@ class BookService {
         toFirestore: (book, _) => book.toMap(),
       );
 
-  Future<void> createBook(Book book) => booksRef.doc(book.id).set(book);
+  Future<void> createBook(Book book) async {
+    try {
+      await booksRef.doc(book.id).set(book);
+      print('Livro ${book.id} criado com sucesso');
+    } catch (e) {
+      print('Erro ao criar livro ${book.id}: $e');
+    }
+  }
 
   Future<Book?> getBook(String id) async {
     final doc = await booksRef.doc(id).get();
     return doc.data();
+  }
+
+  Future<Map<String, Book>> fetchBookMap() async {
+    final snapshot = await booksRef.get();
+    return {for (var doc in snapshot.docs) doc.id: doc.data()};
   }
 
   Future<void> updateBook(Book book) =>

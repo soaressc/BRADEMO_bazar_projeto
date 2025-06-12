@@ -1,173 +1,177 @@
 import 'package:flutter/material.dart';
-import '../models/book.dart';
-import './product_detail_screen.dart';
-import '../models/cart.dart';
-import '../models/cart_item.dart';
-import '../widgets/quantity_selector.dart';
-import '../widgets/bottom_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myapp/models/book.dart';
+import 'package:myapp/models/cart_item.dart';
+import 'package:myapp/models/cart.dart';
+import 'package:myapp/service/cart_service.dart';
+import 'package:myapp/service/cart_item_service.dart';
+import 'package:myapp/widgets/quantity_selector.dart';
+import 'package:myapp/widgets/bottom_bar.dart';
+import 'package:myapp/screens/product_detail_screen.dart';
 
 class CartScreen extends StatefulWidget {
-  final Cart cart;
-
-  const CartScreen({Key? key, required this.cart}) : super(key: key);
+  const CartScreen({super.key});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
 }
 
 class _CartScreenState extends State<CartScreen> {
-  late List<CartItem> itens;
+  late Future<Cart?> _futureCart;
+  final CartService _cartService = CartService();
+  final CartItemService _cartItemService = CartItemService();
+
+  String? userId;
 
   @override
   void initState() {
     super.initState();
-    itens = widget.cart.itens;
+    final user = FirebaseAuth.instance.currentUser;
+    userId = user?.uid;
+    if (userId != null) {
+      _futureCart = _cartService.getCartWithItems(userId!);
+    }
   }
 
-  void _removeItem(String id) {
-    setState(() {
-      itens.removeWhere((item) => item.id == id);
-    });
+  void _refreshCart() {
+    if (userId != null) {
+      setState(() {
+        _futureCart = _cartService.getCartWithItems(userId!);
+      });
+    }
   }
 
-  void _updateQuantidade(String id, int novaQuantidade) {
-    setState(() {
-      final item = itens.firstWhere((item) => item.id == id);
-      item.quantidade = novaQuantidade;
+  void _removeItem(String cartItemId) async {
+    final cart = await _futureCart;
+    if (cart != null) {
+      await _cartItemService.deleteItem(cart.id, cartItemId);
+      _refreshCart();
+    }
+  }
+
+  void _updateQuantity(String cartItemId, int newQuantity) async {
+    final cart = await _futureCart;
+    if (cart != null) {
+      final item = cart.itens.firstWhere((i) => i.id == cartItemId);
+      final updatedItem = item.copyWith(quantity: newQuantity);
+      await _cartItemService.updateItem(cart.id, updatedItem);
+      _refreshCart();
+    }
+  }
+
+  double _calculateTotal(List<CartItem> items, Map<String, Book> bookMap) {
+    return items.fold(0.0, (total, item) {
+      final book = bookMap[item.bookId];
+      final price = book?.priceValue ?? 0.0;
+      return total + (price * item.quantity);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (userId == null) {
+      return const Scaffold(
+        body: Center(child: Text("Usuário não autenticado")),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Cart"),
-        centerTitle: true,
-        leading: const BackButton(),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: const [
-                Text("Order: "),
-                Text("#168504", style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: itens.length,
-              separatorBuilder: (_, __) => const Divider(),
-              itemBuilder: (context, index) {
-                final item = itens[index];
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () => _openProductDetail(context, item.book),
-                            child: Text(
-                              item.book.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepPurple,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
+      appBar: AppBar(title: const Text("My Cart"), centerTitle: true),
+      body: FutureBuilder<Cart?>(
+        future: _futureCart,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text("Erro ao carregar carrinho"));
+          }
+
+          final cart = snapshot.data!;
+          final cartItems = cart.itens;
+          final bookIds = cartItems.map((item) => item.bookId).toSet().toList();
+
+          return FutureBuilder<Map<String, Book>>(
+            future: _cartService.fetchBooks(bookIds),
+            builder: (context, bookSnapshot) {
+              if (bookSnapshot.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (bookSnapshot.hasError || !bookSnapshot.hasData) {
+                return const Center(child: Text("Erro ao carregar livros"));
+              }
+
+              final bookMap = bookSnapshot.data!;
+
+              return Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: cartItems.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final item = cartItems[index];
+                        final book = bookMap[item.bookId];
+                        if (book == null) return const SizedBox.shrink();
+
+                        return ListTile(
+                          title: GestureDetector(
+                            onTap: () => _openProductDetail(context, book),
+                            child: Text(book.title),
                           ),
-                          const SizedBox(height: 8),
-                          QuantitySelector(
-                            quantity: item.quantidade,
+                          subtitle: QuantitySelector(
+                            quantity: item.quantity,
                             onAdd:
-                                () => _updateQuantidade(
-                                  item.id,
-                                  item.quantidade + 1,
-                                ),
+                                () =>
+                                    _updateQuantity(item.id, item.quantity + 1),
                             onRemove: () {
-                              if (item.quantidade > 1) {
-                                _updateQuantidade(item.id, item.quantidade - 1);
+                              if (item.quantity > 1) {
+                                _updateQuantity(item.id, item.quantity - 1);
                               }
                             },
                           ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      item.book.price,
-                      style: const TextStyle(
-                        color: Colors.deepPurple,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => _removeItem(item.id),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          // Total + Checkout
-          Container(
-            color: Colors.deepPurple,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    const Text("Total:", style: TextStyle(color: Colors.white)),
-                    const Spacer(),
-                    Text(
-                      "R\$ ${widget.cart.total.toStringAsFixed(2)}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.deepPurple,
-                    minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                          trailing: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(book.price),
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () => _removeItem(item.id),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  onPressed: () {
-                    // TODO: Implementar fluxo de checkout
-                  },
-                  child: const Text("Checkout"),
-                ),
-              ],
-            ),
-          ),
-        ],
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        const Text("Total:"),
+                        const Spacer(),
+                        Text(
+                          "R\$ ${_calculateTotal(cartItems, bookMap).toStringAsFixed(2)}",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       ),
       bottomNavigationBar: BottomBar(
-        selectedIndex: 2, // Índice da aba "Cart"
+        selectedIndex: 2,
         onTap: (index) {
-          // Navigate based on the selected index
-          if (index == 0) {
-            Navigator.pushNamed(context, '/home');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/category');
-          } else if (index == 2) {
-            // Stay on CartScreen, no need to navigate
-          } else if (index == 3) {
-            Navigator.pushNamed(context, '/profile');
-          }
+          if (index == 0) Navigator.pushNamed(context, '/home');
+          if (index == 1) Navigator.pushNamed(context, '/category');
+          if (index == 3) Navigator.pushNamed(context, '/profile');
         },
       ),
     );
@@ -179,6 +183,6 @@ class _CartScreenState extends State<CartScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ProductDetailScreen(book: book),
-    );
+    ).then((_) => _refreshCart());
   }
 }

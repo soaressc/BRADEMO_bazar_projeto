@@ -1,27 +1,24 @@
 import './address.dart';
 
-class User {
+class AppUser {
   final String id;
   final String name;
   final String email;
-  final String password;
   final String? fotoUrl;
   final Address? endereco;
 
-  User({
+  AppUser({
     required this.id,
     required this.name,
     required this.email,
-    required this.password,
     this.fotoUrl,
     this.endereco,
   });
 
-  factory User.fromMap(String id, Map<String, dynamic> data) => User(
+  factory AppUser.fromMap(String id, Map<String, dynamic> data) => AppUser(
     id: id,
     name: data['name'],
     email: data['email'],
-    password: data['password'],
     fotoUrl: data['fotoUrl'],
     endereco:
         data['endereco'] != null
@@ -32,7 +29,6 @@ class User {
   Map<String, dynamic> toMap() => {
     'name': name,
     'email': email,
-    'password': password,
     'fotoUrl': fotoUrl,
     'endereco': endereco?.toMap(),
   };

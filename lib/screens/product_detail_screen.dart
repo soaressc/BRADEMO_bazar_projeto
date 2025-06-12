@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/cart.dart';
+import 'package:myapp/models/cart_item.dart';
+import 'package:myapp/service/cart_item_service.dart';
+import 'package:myapp/service/cart_service.dart';
 import '../models/book.dart';
 import '../widgets/favorite_button.dart';
 import '../widgets/rating_stars.dart';
 import '../widgets/action_buttons.dart';
 import '../widgets/quantity_selector.dart';
+import '../utils/session.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Book book;
@@ -38,6 +43,70 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  void _handleAddToCart() async {
+    final appUser = await Session.getCurrentAppUser();
+
+    if (appUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Usuário não autenticado ou não encontrado!'),
+        ),
+      );
+      return;
+    }
+
+    final cartService = CartService();
+    final cartItemService = CartItemService();
+
+    Cart? cart = await cartService.getCartByUserId(appUser.id);
+
+    if (cart == null) {
+      cart = Cart(id: appUser.id, userId: appUser.id, itens: []);
+      await cartService.createCart(cart);
+    }
+
+    final String itemId = widget.book.id;
+    final existingItems = await cartItemService.getItems(cart.id);
+    final existingItem = existingItems.firstWhere(
+      (item) => item.id == itemId,
+      orElse:
+          () => CartItem(
+            id: '',
+            cartId: '',
+            bookId: '',
+            unitPrice: 0.0,
+            quantity: 0,
+          ),
+    );
+
+    final isValidItem = existingItem.id.isNotEmpty;
+
+    if (isValidItem) {
+      final updatedItem = existingItem.copyWith(
+        quantity: existingItem.quantity + quantity,
+      );
+      await cartItemService.updateItem(cart.id, updatedItem);
+    } else {
+      final newItem = CartItem(
+        id: itemId,
+        cartId: cart.id,
+        bookId: widget.book.id,
+        unitPrice: widget.book.priceValue,
+        quantity: quantity,
+      );
+      await cartItemService.addItem(cart.id, newItem);
+    }
+
+    if (!mounted) return;
+
+    Navigator.pop(context);
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Livro adicionado ao carrinho!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -59,7 +128,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Handle
                 Center(
                   child: Container(
                     width: 40,
@@ -71,8 +139,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                 ),
-
-                // Image
                 Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
@@ -85,26 +151,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Title + Favorite
                 Row(
                   children: [
                     Expanded(
                       child: Text(
                         widget.book.title,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    FavoriteButton(isFavorite: isFavorite, onTap: _toggleFavorite),
+                    FavoriteButton(
+                      isFavorite: isFavorite,
+                      onTap: _toggleFavorite,
+                    ),
                   ],
                 ),
-
                 const SizedBox(height: 4),
-
-                // Store
                 Text(
                   widget.book.store,
                   style: TextStyle(
@@ -112,33 +175,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     color: scheme.secondary,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
-                // Description
                 Text(
                   widget.book.description,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
-
                 const SizedBox(height: 24),
-
-                // Review section
-                Text(
-                  'Review',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text('Review', style: Theme.of(context).textTheme.titleMedium),
                 RatingStars(
                   rating: widget.book.rating,
                   reviewCount: widget.book.reviewCount,
                 ),
-
                 const SizedBox(height: 24),
-
-                // Quantity and Price
                 Row(
                   children: [
                     QuantitySelector(
@@ -149,22 +199,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     const Spacer(),
                     Text(
                       widget.book.price,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 24),
-
-                // Action Buttons
                 ActionButtons(
-                  primaryLabel: 'Continue shopping',
-                  onPrimaryPressed: () => Navigator.pop(context),
+                  primaryLabel: 'Add to cart',
+                  onPrimaryPressed: _handleAddToCart,
                   secondaryLabel: 'View cart',
-                  onSecondaryPressed: () => Navigator.pushNamed(context, '/cart'),
+                  onSecondaryPressed:
+                      () => Navigator.pushNamed(context, '/cart'),
                 ),
               ],
             ),

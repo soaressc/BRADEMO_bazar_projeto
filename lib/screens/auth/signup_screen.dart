@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/custom_button.dart';
 import 'package:myapp/widgets/custom_input_field.dart';
 import 'signup_success.dart';
 import 'package:myapp/screens/auth/welcome_back_screen.dart';
+import 'package:myapp/models/app_user.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -29,14 +31,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> registerUser() async {
     setState(() => isLoading = true);
 
+    final name = nameController.text;
     final email = emailController.text;
     final password = passwordController.text;
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      final uid = cred.user!.uid;
+
+      // Cria o usuário no Firestore
+      final appUser = AppUser(
+        id: uid,
+        name: name,
+        email: email,
+      );
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set(appUser.toMap());
 
       Navigator.push(
         context,
