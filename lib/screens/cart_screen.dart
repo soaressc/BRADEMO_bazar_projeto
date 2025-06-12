@@ -75,7 +75,11 @@ class _CartScreenState extends State<CartScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("My Cart"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text("My Cart"),
+        centerTitle: true,
+        leading: const BackButton(),
+      ),
       body: FutureBuilder<Cart?>(
         future: _futureCart,
         builder: (context, snapshot) {
@@ -107,6 +111,19 @@ class _CartScreenState extends State<CartScreen> {
               return Column(
                 children: [
                   const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: const [
+                        Text("Order: "),
+                        Text(
+                          "#168504",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Expanded(
                     child: ListView.separated(
                       itemCount: cartItems.length,
@@ -116,26 +133,55 @@ class _CartScreenState extends State<CartScreen> {
                         final book = bookMap[item.bookId];
                         if (book == null) return const SizedBox.shrink();
 
-                        return ListTile(
-                          title: GestureDetector(
-                            onTap: () => _openProductDetail(context, book),
-                            child: Text(book.title),
-                          ),
-                          subtitle: QuantitySelector(
-                            quantity: item.quantity,
-                            onAdd:
-                                () =>
-                                    _updateQuantity(item.id, item.quantity + 1),
-                            onRemove: () {
-                              if (item.quantity > 1) {
-                                _updateQuantity(item.id, item.quantity - 1);
-                              }
-                            },
-                          ),
-                          trailing: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(book.price),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                      onTap:
+                                          () =>
+                                              _openProductDetail(context, book),
+                                      child: Text(
+                                        book.title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.deepPurple,
+                                          decoration: TextDecoration.none,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    QuantitySelector(
+                                      quantity: item.quantity,
+                                      onAdd:
+                                          () => _updateQuantity(
+                                            item.id,
+                                            item.quantity + 1,
+                                          ),
+                                      onRemove: () {
+                                        if (item.quantity > 1) {
+                                          _updateQuantity(
+                                            item.id,
+                                            item.quantity - 1,
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                book.price,
+                                style: const TextStyle(
+                                  color: Colors.deepPurple,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                               IconButton(
                                 icon: const Icon(Icons.close),
                                 onPressed: () => _removeItem(item.id),
@@ -146,15 +192,42 @@ class _CartScreenState extends State<CartScreen> {
                       },
                     ),
                   ),
-                  Padding(
+                  // Total + Checkout
+                  Container(
+                    color: Colors.deepPurple,
                     padding: const EdgeInsets.all(16),
-                    child: Row(
+                    child: Column(
                       children: [
-                        const Text("Total:"),
-                        const Spacer(),
-                        Text(
-                          "R\$ ${_calculateTotal(cartItems).toStringAsFixed(2)}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            const Text(
+                              "Total:",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            const Spacer(),
+                            Text(
+                              "R\$ ${_calculateTotal(cartItems).toStringAsFixed(2)}",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.deepPurple,
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                          ),
+                          onPressed: () {
+                            // TODO: Implement checkout logic
+                          },
+                          child: const Text("Checkout"),
                         ),
                       ],
                     ),
