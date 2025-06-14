@@ -1,14 +1,26 @@
-// Cart Repository
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myapp/models/cart.dart';
-import 'package:myapp/service/cart_service.dart';
 
 class CartRepository {
-  final CartService cartService;
+  final cartsRef = FirebaseFirestore.instance.collection('carts');
 
-  CartRepository({required this.cartService});
+  Future<DocumentSnapshot> getCartDocByUserId(String userId) async {
+    return await cartsRef.doc(userId).get();
+  }
 
-  Future<void> addCart(Cart cart) => cartService.createCart(cart);
-  Future<Cart?> fetchCart(String id) => cartService.getCart(id);
-  Future<void> updateCart(Cart cart) => cartService.updateCart(cart);
-  Future<void> removeCart(String id) => cartService.deleteCart(id);
+  Future<void> createCart(Cart cart) async {
+    await cartsRef.doc(cart.id).set(cart.toJson());
+  }
+
+  Future<void> updateCart(Cart cart) async {
+    await cartsRef.doc(cart.id).update(cart.toJson());
+  }
+
+  Future<void> deleteCart(String id) async {
+    await cartsRef.doc(id).delete();
+  }
+
+  Future<QuerySnapshot> getCartsByUser(String userId) async {
+    return await cartsRef.where('userId', isEqualTo: userId).limit(1).get();
+  }
 }

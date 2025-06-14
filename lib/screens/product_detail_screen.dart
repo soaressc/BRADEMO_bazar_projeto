@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/models/cart.dart';
-import 'package:myapp/models/cart_item.dart';
-import 'package:myapp/service/cart_item_service.dart';
-import 'package:myapp/service/cart_service.dart';
-import '../models/book.dart';
-import '../widgets/favorite_button.dart';
-import '../widgets/rating_stars.dart';
-import '../widgets/action_buttons.dart';
-import '../widgets/quantity_selector.dart';
-import '../utils/session.dart';
+import 'package:myapp/models/book.dart';
+import 'package:myapp/widgets/favorite_button.dart';
+import 'package:myapp/widgets/rating_stars.dart';
+import 'package:myapp/widgets/action_buttons.dart';
+import 'package:myapp/widgets/quantity_selector.dart';
+import 'package:myapp/utils/session.dart';
+import 'package:myapp/controller/cart_controller.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Book book;
@@ -22,6 +19,7 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool isFavorite = false;
   int quantity = 1;
+  final CartController _controller = CartController();
 
   void _toggleFavorite() {
     setState(() {
@@ -43,7 +41,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  void _handleAddToCart() async {
+  Future<void> _handleAddToCart() async {
     final appUser = await Session.getCurrentAppUser();
 
     if (appUser == null) {
@@ -55,53 +53,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       return;
     }
 
-    final cartService = CartService();
-    final cartItemService = CartItemService();
-
-    Cart? cart = await cartService.getCartByUserId(appUser.id);
-
-    // Cria o carrinho se não existir
-    if (cart == null) {
-      cart = Cart(id: appUser.id, userId: appUser.id, items: []);
-      await cartService.createCart(cart);
-    }
-
-    final String itemId = widget.book.id;
-
-    // Verifica se o item já está no carrinho
-    CartItem? existingItem;
     try {
-      final existingItems = await cartItemService.getItems(cart.id);
-      existingItem = existingItems.firstWhere((item) => item.id == itemId);
-    } catch (_) {
-      existingItem = null;
-    }
-
-    if (existingItem != null) {
-      final updatedItem = existingItem.copyWith(
-        quantity: existingItem.quantity + quantity,
+      await _controller.addToCart(appUser.id, widget.book, quantity);
+      if (!mounted) return;
+      Navigator.pop(context);
+      await Future.delayed(const Duration(milliseconds: 100));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Livro adicionado ao carrinho!')),
       );
-      await cartItemService.updateItem(cart.id, updatedItem);
-    } else {
-      final newItem = CartItem(
-        id: itemId,
-        cartId: cart.id,
-        bookId: widget.book.id,
-        unitPrice: widget.book.priceValue,
-        quantity: quantity,
-      );
-
-      await cartItemService.addItem(cart.id, newItem);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao adicionar: $e')));
     }
-
-    if (!mounted) return;
-
-    Navigator.pop(context);
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Livro adicionado ao carrinho!')),
-    );
   }
 
   @override

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/models/book.dart';
-import 'package:myapp/models/cart_item.dart';
 import 'package:myapp/models/cart.dart';
-import 'package:myapp/service/cart_service.dart';
-import 'package:myapp/service/cart_item_service.dart';
+import 'package:myapp/models/cart_item.dart';
+import 'package:myapp/controller/cart_controller.dart';
+import 'package:myapp/widgets/cart_empty_screen.dart';
 import 'package:myapp/widgets/quantity_selector.dart';
 import 'package:myapp/widgets/bottom_bar.dart';
 import 'package:myapp/screens/product_detail_screen.dart';
@@ -18,8 +18,7 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   late Future<Cart?> _futureCart;
-  final CartService _cartService = CartService();
-  final CartItemService _cartItemService = CartItemService();
+  final CartController _controller = CartController();
 
   String? userId;
 
@@ -29,32 +28,28 @@ class _CartScreenState extends State<CartScreen> {
     final user = FirebaseAuth.instance.currentUser;
     userId = user?.uid;
     if (userId != null) {
-      _futureCart = _cartService.getCartWithItems(userId!);
+      _futureCart = _controller.loadCart(userId!);
     }
   }
 
   void _refreshCart() {
     if (userId != null) {
       setState(() {
-        _futureCart = _cartService.getCartWithItems(userId!);
+        _futureCart = _controller.loadCart(userId!);
       });
     }
   }
 
   void _removeItem(String cartItemId) async {
-    final cart = await _futureCart;
-    if (cart != null) {
-      await _cartItemService.deleteItem(cart.id, cartItemId);
+    if (userId != null) {
+      await _controller.removeFromCart(userId!, cartItemId);
       _refreshCart();
     }
   }
 
   void _updateQuantity(String cartItemId, int newQuantity) async {
-    final cart = await _futureCart;
-    if (cart != null) {
-      final item = cart.items.firstWhere((i) => i.id == cartItemId);
-      final updatedItem = item.copyWith(quantity: newQuantity);
-      await _cartItemService.updateItem(cart.id, updatedItem);
+    if (userId != null) {
+      await _controller.updateItemQuantity(userId!, cartItemId, newQuantity);
       _refreshCart();
     }
   }
@@ -64,6 +59,15 @@ class _CartScreenState extends State<CartScreen> {
       0.0,
       (total, item) => total + (item.unitPrice * item.quantity),
     );
+  }
+
+  void _openProductDetail(BuildContext context, Book book) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ProductDetailScreen(book: book),
+    ).then((_) => _refreshCart());
   }
 
   @override
@@ -76,7 +80,7 @@ class _CartScreenState extends State<CartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Cart"),
+        title: const Text("Carrinho"),
         centerTitle: true,
         leading: const BackButton(),
       ),
@@ -88,7 +92,7 @@ class _CartScreenState extends State<CartScreen> {
           }
 
           if (snapshot.hasError || !snapshot.hasData) {
-            return const Center(child: Text("Erro ao carregar carrinho"));
+            return const CartEmptyScreen();
           }
 
           final cart = snapshot.data!;
@@ -96,14 +100,16 @@ class _CartScreenState extends State<CartScreen> {
           final bookIds = cartItems.map((item) => item.bookId).toSet().toList();
 
           return FutureBuilder<Map<String, Book>>(
-            future: _cartService.fetchBooks(bookIds),
+            future: _controller.fetchBooks(bookIds),
             builder: (context, bookSnapshot) {
               if (bookSnapshot.connectionState != ConnectionState.done) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              if (bookSnapshot.hasError || !bookSnapshot.hasData) {
-                return const Center(child: Text("Erro ao carregar livros"));
+              if (bookSnapshot.hasError ||
+                  !bookSnapshot.hasData ||
+                  bookSnapshot.data!.isEmpty) {
+                return const CartEmptyScreen();
               }
 
               final bookMap = bookSnapshot.data!;
@@ -176,7 +182,7 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               Text(
-                                book.price,
+                                'R\$ ${item.unitPrice.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   color: Colors.deepPurple,
                                   fontWeight: FontWeight.w500,
@@ -192,7 +198,6 @@ class _CartScreenState extends State<CartScreen> {
                       },
                     ),
                   ),
-                  // Total + Checkout
                   Container(
                     color: Colors.deepPurple,
                     padding: const EdgeInsets.all(16),
@@ -247,14 +252,5 @@ class _CartScreenState extends State<CartScreen> {
         },
       ),
     );
-  }
-
-  void _openProductDetail(BuildContext context, Book book) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ProductDetailScreen(book: book),
-    ).then((_) => _refreshCart());
   }
 }

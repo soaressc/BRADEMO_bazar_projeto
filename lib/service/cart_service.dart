@@ -1,91 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:myapp/models/cart.dart';
 import 'package:myapp/models/book.dart';
-import 'package:myapp/models/cart_item.dart';
+import 'package:myapp/models/cart.dart';
+import 'package:myapp/repository/cart_repository.dart';
 import 'package:myapp/service/cart_item_service.dart';
 
 class CartService {
-  final CollectionReference<Cart> cartsRef = FirebaseFirestore.instance
-      .collection('carts')
-      .withConverter<Cart>(
-        fromFirestore: (snap, _) => Cart.fromJson(snap.data()!),
-        toFirestore: (cart, _) => cart.toJson(),
-      );
-
-  Future<void> createCart(Cart cart) async {
-    try {
-      await cartsRef.doc(cart.id).set(cart);
-    } catch (e) {
-      print("Erro ao criar carrinho: $e");
-      rethrow;
-    }
-  }
-
-  Future<Cart?> getCart(String id) async {
-    try {
-      final doc = await cartsRef.doc(id).get();
-      return doc.exists ? doc.data() : null;
-    } catch (e) {
-      print("Erro ao buscar carrinho: $e");
-      return null;
-    }
-  }
-
-  Future<Cart?> getCartByUserId(String userId) async {
-    try {
-      final doc =
-          await FirebaseFirestore.instance
-              .collection('carts')
-              .doc(userId)
-              .get();
-      if (doc.exists) {
-        return Cart.fromDocument(doc);
-      }
-      return null;
-    } catch (e) {
-      print("Erro ao buscar carrinho pelo userId: $e");
-      return null;
-    }
-  }
+  final CartRepository _repository = CartRepository();
+  final CartItemService _itemService = CartItemService();
 
   Future<Cart?> getCartWithItems(String userId) async {
-    try {
-      final query =
-          await FirebaseFirestore.instance
-              .collection('carts')
-              .where('userId', isEqualTo: userId)
-              .limit(1)
-              .get();
+    final snapshot = await _repository.getCartsByUser(userId);
+    if (snapshot.docs.isEmpty) return null;
 
-      if (query.docs.isEmpty) return null;
-
-      final cartDoc = query.docs.first;
-      final cart = Cart.fromDocument(cartDoc);
-      final items = await CartItemService().getItems(cart.id);
-
-      return cart.copyWith(items: items);
-    } catch (e) {
-      print("Erro ao buscar carrinho com itens: $e");
-      return null;
-    }
+    final cartDoc = snapshot.docs.first;
+    final cart = Cart.fromDocument(cartDoc);
+    final items = await _itemService.getItems(cart.id);
+    return cart.copyWith(items: items);
   }
 
-  Future<void> updateCart(Cart cart) async {
-    try {
-      await cartsRef.doc(cart.id).update(cart.toJson());
-    } catch (e) {
-      print("Erro ao atualizar carrinho: $e");
-      rethrow;
+  Future<Cart> createOrGetCart(String userId) async {
+    final snapshot = await _repository.getCartDocByUserId(userId);
+    if (snapshot.exists) {
+      final cart = Cart.fromDocument(snapshot);
+      return cart;
     }
+
+    final cart = Cart(id: userId, userId: userId);
+    await _repository.createCart(cart);
+    return cart;
   }
 
-  Future<void> deleteCart(String id) async {
-    try {
-      await cartsRef.doc(id).delete();
-    } catch (e) {
-      print("Erro ao excluir carrinho: $e");
-      rethrow;
-    }
+  Future<void> removeItem(String cartId, String itemId) async {
+    await _itemService.deleteItem(cartId, itemId);
   }
 
   Future<void> updateItemQuantity(
@@ -93,43 +39,23 @@ class CartService {
     String itemId,
     int quantity,
   ) async {
-    try {
-      final itemService = CartItemService();
-      final item = await itemService.getItemById(cartId, itemId);
-      if (item != null) {
-        final updatedItem = item.copyWith(quantity: quantity);
-        await itemService.updateItem(cartId, updatedItem);
-      }
-    } catch (e) {
-      print("Erro ao atualizar quantidade do item: $e");
-      rethrow;
-    }
-  }
-
-  Future<void> removeItem(String cartId, String itemId) async {
-    try {
-      await CartItemService().deleteItem(cartId, itemId);
-    } catch (e) {
-      print("Erro ao remover item do carrinho: $e");
-      rethrow;
+    final item = await _itemService.getItem(cartId, itemId);
+    if (item != null) {
+      final updated = item.copyWith(quantity: quantity);
+      await _itemService.addOrUpdateItem(cartId, updated);
     }
   }
 
   Future<Map<String, Book>> fetchBooks(List<String> bookIds) async {
-    try {
-      final booksSnapshot =
-          await FirebaseFirestore.instance
-              .collection('books')
-              .where(FieldPath.documentId, whereIn: bookIds)
-              .get();
+    final booksSnapshot =
+        await FirebaseFirestore.instance
+            .collection('books')
+            .where(FieldPath.documentId, whereIn: bookIds)
+            .get();
 
-      return {
-        for (var doc in booksSnapshot.docs)
-          doc.id: Book.fromMap(doc.data(), id: doc.id),
-      };
-    } catch (e) {
-      print("Erro ao buscar livros: $e");
-      return {};
-    }
+    return {
+      for (var doc in booksSnapshot.docs)
+        doc.id: Book.fromMap(doc.data(), id: doc.id),
+    };
   }
 }
