@@ -5,10 +5,13 @@ import 'package:camera/camera.dart';
 import 'package:flutter_image_gallery_saver/flutter_image_gallery_saver.dart';
 
 import 'dart:io';
+import 'dart:async';
 
 import '../../main.dart';
 import 'camera_screen.dart';
-// import 'package:collection/collection.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:myapp/models/app_user.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,19 +21,77 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final TextEditingController nameController = TextEditingController(
-    text: 'John',
-  );
-  final TextEditingController emailController = TextEditingController(
-    text: 'Johndoe@email.com',
-  );
-  final TextEditingController passwordController = TextEditingController(
-    text: '123456',
-  );
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
 
   String? _profileImagePath;
+  AppUser? _currentUser;
+  StreamSubscription<User?>? _authStateSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _authStateSubscription = FirebaseAuth.instance.authStateChanges().listen((
+      user,
+    ) {
+      if (user != null) {
+        _loadUserData(user.uid);
+      } else {
+        setState(() {
+          _currentUser = null;
+          nameController.clear();
+          emailController.clear();
+          passwordController.clear();
+          _profileImagePath = null;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    _authStateSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadUserData(String userId) async {
+    try {
+      final userDoc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .get();
+      if (userDoc.exists) {
+        setState(() {
+          _currentUser = AppUser.fromMap(
+            userDoc.id,
+            userDoc.data() as Map<String, dynamic>,
+          );
+          nameController.text = _currentUser!.name;
+          emailController.text = _currentUser!.email;
+          _profileImagePath = null;
+        });
+      } else {
+        print(
+          'PROFILESCREEN: Documento do usuário não encontrado no Firestore.',
+        );
+        setState(() {
+          _currentUser = null;
+        });
+      }
+    } catch (e) {
+      print('PROFILESCREEN: Erro ao carregar dados do usuário: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar seus dados: $e')),
+      );
+    }
+  }
 
   void _openAddressScreen() {
     Navigator.pushNamed(context, '/address');
@@ -53,22 +114,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final file = File(imagePath);
       final bytes = await file.readAsBytes();
 
+      // 1. Salvar na galeria local
       await FlutterImageGallerySaver.saveImage(bytes);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Foto salva na galeria e perfil atualizado!'),
+          content: Text(
+            'Foto salva na galeria e perfil atualizado localmente!',
+          ),
         ),
       );
 
+      // 2. Atualizar estado local para exibição imediata
       setState(() {
         _profileImagePath = imagePath;
       });
     } catch (e) {
       print('Erro ao processar imagem para perfil/galeria: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar ou atualizar foto: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao processar foto: $e')));
     }
   }
 
@@ -167,7 +232,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     CircleAvatar(
                       radius: 48,
                       backgroundImage:
-                          _profileImagePath != null
+                          // Prioriza a imagem local recém-tirada/cortada
+                          _profileImagePath != null &&
+                                  _profileImagePath!.startsWith('/')
                               ? FileImage(File(_profileImagePath!))
                                   as ImageProvider<Object>
                               : const NetworkImage(
@@ -214,15 +281,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 16),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.location_pin, color: Colors.deepPurple),
+              leading: const Icon(Icons.location_on, color: Colors.deepPurple),
               title: const Text("Address"),
               trailing: const Icon(Icons.chevron_right),
               onTap: _openAddressScreen,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                // implementar lógica de salvar
+              onPressed: () async {
+                // Lógica para salvar as alterações de Nome/Email do usuário no Firestore
+                if (_currentUser != null) {
+                  try {
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(_currentUser!.id)
+                        .update({
+                          'name': nameController.text,
+                          'email': emailController.text,
+                        });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Dados atualizados com sucesso!'),
+                      ),
+                    );
+                    _loadUserData(_currentUser!.id);
+                  } catch (e) {
+                    print('Erro ao salvar dados do perfil: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erro ao salvar dados do perfil: $e'),
+                      ),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Nenhum usuário logado para salvar dados.'),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,

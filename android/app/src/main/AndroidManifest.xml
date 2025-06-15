@@ -14,16 +14,12 @@
         android:label="Bazar Books"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-<<<<<<< Updated upstream
-        android:requestLegacyExternalStorage="true"> <activity
-=======
         android:requestLegacyExternalStorage="true"> 
 
         <meta-data android:name="com.google.android.geo.API_KEY"
                    android:value="@string/Maps_api_key"/> 
 
         <activity
->>>>>>> Stashed changes
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
