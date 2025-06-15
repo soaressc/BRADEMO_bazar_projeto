@@ -1,4 +1,13 @@
+// lib/screens/profile_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+import 'package:flutter_image_gallery_saver/flutter_image_gallery_saver.dart';
+
+import 'dart:io';
+
+import '../../main.dart';
+import 'camera_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,10 +26,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController passwordController = TextEditingController(
     text: '123456',
   );
+
   bool obscurePassword = true;
+
+  String? _profileImagePath;
 
   void _openAddressScreen() {
     Navigator.pushNamed(context, '/address');
+  }
+
+  Future<void> _saveImageToGalleryAndUpdateProfile(String imagePath) async {
+    try {
+      final file = File(imagePath);
+      final bytes = await file.readAsBytes();
+
+      await FlutterImageGallerySaver.saveImage(bytes);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Imagem salva na galeria!')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar imagem: $e')));
+      print('Erro ao salvar imagem: $e');
+    }
   }
 
   void _showChangePictureModal() {
@@ -42,16 +72,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
               ListTile(
                 title: const Text("Take a picture"),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  // implement camera logic
+
+                  if (cameras.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Nenhuma câmera disponível!'),
+                      ),
+                    );
+                    return;
+                  }
+                  final XFile? image = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => CameraScreen(availableCameras: cameras),
+                    ),
+                  );
+
+                  if (image != null) {
+                    _saveImageToGalleryAndUpdateProfile(image.path);
+                  }
                 },
               ),
               ListTile(
                 title: const Text("From Gallery"),
                 onTap: () {
                   Navigator.pop(context);
-                  // implement gallery picker logic
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Seleção da galeria ainda não implementada.',
+                      ),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: 8),
@@ -90,11 +145,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: _showChangePictureModal,
                 child: Column(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 48,
-                      backgroundImage: NetworkImage(
-                        'https://randomuser.me/api/portraits/men/11.jpg',
-                      ),
+                      backgroundImage:
+                          _profileImagePath != null
+                              ? FileImage(File(_profileImagePath!))
+                                  as ImageProvider<Object>
+                              : const NetworkImage(
+                                'https://randomuser.me/api/portraits/men/11.jpg',
+                              ),
                     ),
                     const SizedBox(height: 8),
                     Text(
