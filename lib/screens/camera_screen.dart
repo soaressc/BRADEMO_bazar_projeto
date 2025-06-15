@@ -98,7 +98,7 @@ class CameraScreenState extends State<CameraScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         actions: [
           // Botão do Flash
@@ -159,7 +159,7 @@ class CameraScreenState extends State<CameraScreen> {
                 left: 24.0,
                 right: 24.0,
               ),
-              color: Colors.purple,
+              color: Colors.deepPurple,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -197,26 +197,24 @@ class CameraScreenState extends State<CameraScreen> {
                             try {
                               await _initializeControllerFuture;
                               final image = await _controller.takePicture();
+
                               if (!mounted) return;
+
                               final croppedImagePath = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) => ImageCropScreen(
-                                        imageFile: image,
-                                      ), // Passa o XFile capturado
+                                      (context) =>
+                                          ImageCropScreen(imageFile: image),
                                 ),
                               );
 
-                              // Se uma imagem cortada foi retornada pela ImageCropScreen,
-                              // então retorne-a para o ProfileScreen.
                               if (croppedImagePath != null) {
-                                Navigator.pop(
-                                  context,
-                                  XFile(croppedImagePath),
-                                ); // Retorna um XFile com o caminho cortado
+                                Navigator.pop(context, XFile(croppedImagePath));
                               } else {
-                                // Se o usuário cancelou o corte, apenas volte para o ProfileScreen sem imagem
+                                print(
+                                  'CAMERASCREEN: Nenhuma imagem cortada retornada (cancelado ou erro).',
+                                );
                                 Navigator.pop(context);
                               }
                             } catch (e) {
@@ -229,10 +227,11 @@ class CameraScreenState extends State<CameraScreen> {
                             }
                           },
                           backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          child: const Icon(Icons.camera_alt, size: 36),
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Botão de Virar Câmera
                       Expanded(
                         child: Opacity(
                           opacity:

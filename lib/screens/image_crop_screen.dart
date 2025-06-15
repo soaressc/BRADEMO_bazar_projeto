@@ -1,3 +1,5 @@
+// lib/screens/image_crop_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -34,7 +36,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Cortar Imagem',
-          toolbarColor: Colors.purple,
+          toolbarColor: Colors.deepPurple,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.square,
           lockAspectRatio: false,
@@ -65,7 +67,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
       appBar: AppBar(
         title: const Text('Redimensionar Foto'),
         centerTitle: true,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -82,17 +84,16 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
         ],
       ),
       body: Center(
-        child:
-            _croppedFile == null
-                ? const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Preparando imagem para corte...'),
-                  ],
-                )
-                : Image.file(File(_croppedFile!.path), fit: BoxFit.contain),
+        child: _croppedFile == null
+            ? const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Preparando imagem para corte...'),
+                ],
+              )
+            : Image.file(File(_croppedFile!.path), fit: BoxFit.contain),
       ),
     );
   }

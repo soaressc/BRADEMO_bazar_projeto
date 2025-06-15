@@ -8,6 +8,7 @@ import 'dart:io';
 
 import '../../main.dart';
 import 'camera_screen.dart';
+// import 'package:collection/collection.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -37,19 +38,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _saveImageToGalleryAndUpdateProfile(String imagePath) async {
     try {
+      final fileExists = await File(imagePath).exists();
+      if (!fileExists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Erro: Arquivo da imagem não encontrado para o perfil.',
+            ),
+          ),
+        );
+        return;
+      }
+
       final file = File(imagePath);
       final bytes = await file.readAsBytes();
 
       await FlutterImageGallerySaver.saveImage(bytes);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Imagem salva na galeria!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Foto salva na galeria e perfil atualizado!'),
+        ),
+      );
+
+      setState(() {
+        _profileImagePath = imagePath;
+      });
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao salvar imagem: $e')));
-      print('Erro ao salvar imagem: $e');
+      print('Erro ao processar imagem para perfil/galeria: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao salvar ou atualizar foto: $e')),
+      );
     }
   }
 
@@ -113,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
+                  backgroundColor: Colors.deepPurple,
                   minimumSize: const Size.fromHeight(48),
                 ),
                 child: const Text("Cancel"),
@@ -158,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 8),
                     Text(
                       "Change Picture",
-                      style: TextStyle(color: Colors.purple[700]),
+                      style: TextStyle(color: Colors.deepPurple[700]),
                     ),
                   ],
                 ),
@@ -195,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 16),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.location_pin, color: Colors.purple),
+              leading: const Icon(Icons.location_pin, color: Colors.deepPurple),
               title: const Text("Address"),
               trailing: const Icon(Icons.chevron_right),
               onTap: _openAddressScreen,
@@ -206,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // implementar lógica de salvar
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
+                backgroundColor: Colors.deepPurple,
                 minimumSize: const Size.fromHeight(48),
               ),
               child: const Text("Save Changes"),

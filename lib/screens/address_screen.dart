@@ -1,3 +1,5 @@
+// lib/screens/address_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -174,7 +176,7 @@ class _AddressScreenState extends State<AddressScreen> {
               // Área do Mapa (ainda simulado, mas agora reflete o status)
               Container(
                 height: 250,
-                color: Colors.purple[50],
+                color: Colors.deepPurple[50],
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -187,7 +189,7 @@ class _AddressScreenState extends State<AddressScreen> {
                       ),
                       const SizedBox(height: 10),
                       if (_currentPosition == null)
-                        CircularProgressIndicator(color: Colors.purple)
+                        CircularProgressIndicator(color: Colors.deepPurple)
                       else
                         Text(
                           'Lat: ${_currentPosition!.latitude.toStringAsFixed(5)}\nLon: ${_currentPosition!.longitude.toStringAsFixed(5)}',
@@ -213,7 +215,7 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.location_on, color: Colors.purple),
+                  const Icon(Icons.location_on, color: Colors.deepPurple),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -256,7 +258,7 @@ class _AddressScreenState extends State<AddressScreen> {
                   ChoiceChip(
                     label: const Text("Home"),
                     selected: true,
-                    selectedColor: Colors.purple[100],
+                    selectedColor: Colors.deepPurple[100],
                     onSelected: (_) {},
                   ),
                   const SizedBox(width: 12),
@@ -280,7 +282,7 @@ class _AddressScreenState extends State<AddressScreen> {
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
+                  backgroundColor: Colors.deepPurple,
                   minimumSize: const Size.fromHeight(48),
                 ),
                 child: const Text("Confirmation"),
