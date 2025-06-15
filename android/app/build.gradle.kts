@@ -9,10 +9,9 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapp"
+    namespace = "com.example.myapp" // Namespace do aplicativo
     compileSdk = flutter.compileSdkVersion
-    // ndkVersion = flutter.ndkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "27.0.12077973" // Versão NDK específica
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -25,24 +24,23 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.myapp"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        // minSdk = flutter.minSdkVersion
-        minSdk = 23
+        applicationId = "com.example.myapp" // ID do aplicativo
+        minSdk = 23 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        // linhas para image_cropper:
+        
+        // Linhas para image_cropper:
         vectorDrawables.useSupportLibrary = true
-        multiDexEnabled = true
+        multiDexEnabled = true // MultiDex ativado
+
+        // Chave API Google Maps
+        resValue("string", "Maps_api_key", (project.findProperty("MAPS_API_KEY") as String? ?: ""))
+
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so flutter run --release works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -51,6 +49,9 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    // DEPENDÊNCIA PARA MULTIDEX
+    implementation("androidx.multidex:multidex:2.0.1")
 }
 
 flutter {
