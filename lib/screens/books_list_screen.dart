@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../screens/product_detail_screen.dart';
 import '../screens/gridview.dart';
-import '../service/book_service.dart'; 
+import '../service/book_service.dart'; // 🔥 Certifique-se que o path tá certo
 
 class BooksListScreen extends StatelessWidget {
   final BookService _bookService = BookService();

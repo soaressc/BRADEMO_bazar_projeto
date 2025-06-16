@@ -9,10 +9,6 @@ import '../widgets/rating_stars.dart';
 import '../widgets/action_buttons.dart';
 import '../widgets/quantity_selector.dart';
 import '../utils/session.dart';
-import '../service/notification_service.dart';
-import '../models/app_notification_model.dart';
-import '../utils/favorite_storage.dart';
-import 'package:myapp/controller/cart_controller.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Book book;
@@ -26,50 +22,11 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool isFavorite = false;
   int quantity = 1;
-  final CartController _controller = CartController();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadFavorite();
-  }
-
-  void _loadFavorite() async {
-    final fav = await FavoriteStorage.isFavorite(widget.book.id);
+  void _toggleFavorite() {
     setState(() {
-      isFavorite = fav;
+      isFavorite = !isFavorite;
     });
-  }
-
-  void _toggleFavorite() async {
-    final newFavState = await FavoriteStorage.toggleFavorite(widget.book.id);
-    setState(() {
-      isFavorite = newFavState;
-    });
-
-    final title =
-        isFavorite ? 'Livro Favoritado' : 'Livro Removido dos Favoritos';
-    final message =
-        '"${widget.book.title}" ${isFavorite ? 'foi adicionado aos favoritos!' : 'foi removido dos favoritos.'}';
-
-    await showNotification(title, message);
-
-    final appUser = await Session.getCurrentAppUser();
-    if (appUser == null) return;
-
-    final notificationService = NotificationService();
-    final docRef = notificationService.notificationsRef.doc();
-
-    final notification = AppNotification(
-      id: docRef.id,
-      userId: appUser.id,
-      title: title,
-      message: message,
-      sentDate: DateTime.now(),
-      read: false,
-    );
-
-    await docRef.set(notification);
   }
 
   void _incrementQuantity() {
@@ -86,7 +43,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  Future<void> _handleAddToCart() async {
+  void _handleAddToCart() async {
     final appUser = await Session.getCurrentAppUser();
 
     if (appUser == null) {
@@ -98,19 +55,56 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       return;
     }
 
-    try {
-      await _controller.addToCart(appUser.id, widget.book, quantity);
-      if (!mounted) return;
-      Navigator.pop(context);
-      await Future.delayed(const Duration(milliseconds: 100));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Livro adicionado ao carrinho!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao adicionar: $e')));
+    final cartService = CartService();
+    final cartItemService = CartItemService();
+
+    Cart? cart = await cartService.getCartByUserId(appUser.id);
+
+    if (cart == null) {
+      cart = Cart(id: appUser.id, userId: appUser.id, itens: []);
+      await cartService.createCart(cart);
     }
+
+    final String itemId = widget.book.id;
+    final existingItems = await cartItemService.getItems(cart.id);
+    final existingItem = existingItems.firstWhere(
+      (item) => item.id == itemId,
+      orElse:
+          () => CartItem(
+            id: '',
+            cartId: '',
+            bookId: '',
+            unitPrice: 0.0,
+            quantity: 0,
+          ),
+    );
+
+    final isValidItem = existingItem.id.isNotEmpty;
+
+    if (isValidItem) {
+      final updatedItem = existingItem.copyWith(
+        quantity: existingItem.quantity + quantity,
+      );
+      await cartItemService.updateItem(cart.id, updatedItem);
+    } else {
+      final newItem = CartItem(
+        id: itemId,
+        cartId: cart.id,
+        bookId: widget.book.id,
+        unitPrice: widget.book.priceValue,
+        quantity: quantity,
+      );
+      await cartItemService.addItem(cart.id, newItem);
+    }
+
+    if (!mounted) return;
+
+    Navigator.pop(context);
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Livro adicionado ao carrinho!')),
+    );
   }
 
   @override
