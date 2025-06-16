@@ -12,10 +12,23 @@ import 'package:myapp/screens/address_screen.dart';
 import 'package:myapp/screens/splash_screen.dart';
 import 'package:myapp/screens/notification_screen.dart';
 import 'package:myapp/controller/cart_wrapper.dart';
+import 'package:myapp/service/notification_service.dart';
+
+// Câmeras disponíveis no dispositivo
+List<CameraDescription> cameras = [];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform );
+   await initializeNotifications();
+
+  // inicializar as câmeras
+   try {
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print('Erro ao carregar câmeras: ${e.code}\nMensagem: ${e.description}');
+  }
+  
   runApp(const MyApp());
 }
 
