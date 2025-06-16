@@ -5,21 +5,21 @@ import 'package:myapp/service/cart_item_service.dart';
 import 'package:myapp/service/cart_service.dart';
 
 class CartController {
-  // Create an instance of CartService
+
   final CartService _cartService =
-      CartService(); // Use _cartService instead of _service
+      CartService(); 
   final CartItemService _itemService = CartItemService();
 
   Future<Cart?> loadCart(String userId) async {
     return await _cartService.getCartWithItems(
       userId,
-    ); // Fix reference to _cartService
+    );
   }
 
   Future<void> addToCart(String userId, Book book, int quantity) async {
     final cart = await _cartService.createOrGetCart(
       userId,
-    ); // Fix reference to _cartService
+    );
     final existingItem = await _itemService.getItem(cart.id, book.id);
 
     if (existingItem != null) {
