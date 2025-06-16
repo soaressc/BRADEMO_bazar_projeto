@@ -11,10 +11,12 @@ import 'package:myapp/screens/address_screen.dart';
 import 'package:myapp/screens/splash_screen.dart';
 import 'package:myapp/screens/notification_screen.dart';
 import 'package:myapp/controller/cart_wrapper.dart';
+import 'package:myapp/service/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initializeNotifications();
   runApp(const MyApp());
 }
 
@@ -33,7 +35,10 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const Home(),
         '/signup': (context) => const SignUpScreen(),
         '/cart': (context) => const CartWrapper(),
-        '/notifications': (context) => NotificationScreen(),
+        '/notifications': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as String;
+          return NotificationScreen(userId: args);
+        },
         '/profile': (context) => const ProfileScreen(),
         '/address': (context) => const AddressScreen(),
       },
