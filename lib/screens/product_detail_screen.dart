@@ -6,6 +6,9 @@ import 'package:myapp/widgets/action_buttons.dart';
 import 'package:myapp/widgets/quantity_selector.dart';
 import 'package:myapp/utils/session.dart';
 import 'package:myapp/controller/cart_controller.dart';
+import '../service/notification_service.dart';
+import '../models/app_notification_model.dart';
+import '../utils/favorite_storage.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Book book;
@@ -21,10 +24,49 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int quantity = 1;
   final CartController _controller = CartController();
 
-  void _toggleFavorite() {
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorite();
+  }
+
+  void _loadFavorite() async {
+    final fav = await FavoriteStorage.isFavorite(widget.book.id);
     setState(() {
-      isFavorite = !isFavorite;
+      isFavorite = fav;
     });
+  }
+
+  void _toggleFavorite() async {
+    final newFavState = await FavoriteStorage.toggleFavorite(widget.book.id);
+    setState(() {
+      isFavorite = newFavState;
+    });
+
+    final title =
+        isFavorite ? 'Livro Favoritado' : 'Livro Removido dos Favoritos';
+    final message =
+        '"${widget.book.title}" ${isFavorite ? 'foi adicionado aos favoritos!' : 'foi removido dos favoritos.'}';
+
+    await showNotification(title, message);
+
+    final appUser = await Session.getCurrentAppUser();
+    if (appUser == null) return;
+
+    final notificationService = NotificationService();
+    final docRef = notificationService.notificationsRef.doc(); 
+
+
+    final notification = AppNotification(
+      id: docRef.id,
+      userId: appUser.id,
+      title: title,
+      message: message,
+      sentDate: DateTime.now(),
+      read: false,
+    );
+
+    await docRef.set(notification);
   }
 
   void _incrementQuantity() {
